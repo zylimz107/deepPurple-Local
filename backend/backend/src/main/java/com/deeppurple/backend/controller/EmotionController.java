@@ -2,6 +2,7 @@ package com.deeppurple.backend.controller;
 
 import com.deeppurple.backend.entity.EmotionCategory;
 import com.deeppurple.backend.entity.WordEmotionAssociation;
+import com.deeppurple.backend.repository.WordEmotionAssociationRepository;
 import com.deeppurple.backend.service.EmotionCategoryService;
 import com.deeppurple.backend.service.WordEmotionAssociationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class EmotionController {
 
     @Autowired
     private WordEmotionAssociationService wordEmotionAssociationService;
+
+    @Autowired
+    private WordEmotionAssociationRepository wordEmotionAssociationRepository;
 
     // Emotion Category Endpoints
     @PostMapping("/category")
@@ -51,6 +55,12 @@ public class EmotionController {
             @RequestParam Long emotionCategoryId) {
         return wordEmotionAssociationService.associateWordWithEmotion(word, emotionCategoryId);
     }
+
+    @GetMapping("/word-associations/{modelId}")
+    public List<WordEmotionAssociation> getAssociationsByModel(@PathVariable Long modelId) {
+        return wordEmotionAssociationRepository.findByEmotionCategory_ModelId(modelId);
+    }
+
 
     @DeleteMapping("/word-association/{id}")
     public void deleteWordEmotionAssociation(@PathVariable Long id) {

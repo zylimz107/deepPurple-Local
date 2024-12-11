@@ -34,10 +34,6 @@ public class Communication {
     @Column(nullable = false, updatable = false)
     private LocalDateTime timestamp;
 
-    @OneToMany
-    @JoinColumn(name = "communication_id")
-    private List<WordEmotionAssociation> wordAssociations;  // New field for word associations
-
     @PrePersist
     protected void onCreate() {
         timestamp = LocalDateTime.now(); // Set timestamp when communication is created

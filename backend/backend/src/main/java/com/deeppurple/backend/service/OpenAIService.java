@@ -1,7 +1,9 @@
 package com.deeppurple.backend.service;
 
 import com.deeppurple.backend.entity.EmotionCategory;
+import com.deeppurple.backend.entity.WordEmotionAssociation;
 import com.deeppurple.backend.repository.ModelRepository;
+import com.deeppurple.backend.repository.WordEmotionAssociationRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
@@ -21,11 +23,11 @@ public class OpenAIService {
 
     private final WebClient webClient;
     private final ModelRepository modelRepository;
+    private final WordEmotionAssociationRepository wordEmotionAssociationRepository;
 
-
-
-    public OpenAIService(ModelRepository modelRepository) {
+    public OpenAIService(ModelRepository modelRepository, WordEmotionAssociationRepository wordEmotionAssociationRepository) {
         this.modelRepository = modelRepository;
+        this.wordEmotionAssociationRepository = wordEmotionAssociationRepository;
         this.webClient = WebClient.builder()
                 .baseUrl("https://api.openai.com/v1")
                 .defaultHeader("Authorization", "Bearer " + System.getenv("OPENAI_API_KEY"))
@@ -44,19 +46,30 @@ public class OpenAIService {
                         return Mono.error(new RuntimeException("No emotion categories found for model: " + modelName));
                     }
 
-                    String prompt = createPrompt(content, emotionCategories);
+                    // Fetch word-emotion associations for the model's emotion categories
+                    List<WordEmotionAssociation> associations = wordEmotionAssociationRepository.findByEmotionCategoryIn(emotionCategories);
+                    String prompt = createPrompt(content, emotionCategories, associations);
                     return callOpenAI(prompt);
                 });
     }
 
-    private String createPrompt(String content, List<EmotionCategory> emotionCategories) {
+    private String createPrompt(String content, List<EmotionCategory> emotionCategories, List<WordEmotionAssociation> associations) {
+        // Build the list of emotions
         String emotionsList = emotionCategories.stream()
                 .map(EmotionCategory::getEmotion)
                 .reduce((a, b) -> a + ", " + b)
                 .orElse("none");
+
+        // Check if any of the words from associations appear in the content
+        String matchedWords = associations.stream()
+                .filter(association -> content.contains(association.getWord()))  // Check if the word is present in the content
+                .map(association -> association.getWord() + " (" + association.getEmotionCategory().getEmotion() + ")")
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("none");
+
         String format = "{\n" +
                 "  \"primaryEmotion\": {\n" +
-                "    \"emotion\": \"doubt\",\n" +
+                "    \"emotion\": \"joy\",\n" +
                 "    \"percentage\": 40\n" +
                 "  },\n" +
                 "  \"secondaryEmotions\": [\n" +
@@ -70,12 +83,13 @@ public class OpenAIService {
                 "    }\n" +
                 "  ],\n" +
                 "  \"confidenceRating\": 75,\n" +
-                "  \"summary\": \"The text evokes feelings of doubt, fear, and insecurity, suggesting an underlying struggle with self-perception.\"\n" +
+                "  \"summary\": \"The text contains the words \"awesome, incredible\", suggesting a feeling of joy, etc.\"\n" +
                 "}";
 
         return "Consider only the following emotions: [" + emotionsList + "] in the text: \"" + content + "\". "
+                + "The content contains the following words associated with emotions: " + matchedWords + ". "
                 + "Respond with a JSON object containing: primaryEmotion with its percentage, secondaryEmotions with their percentages, "
-                + "confidenceRating (out of 100), and a summary." + " Here's an example: \"" + format +"\"";
+                + "confidenceRating (out of 100), and a summary describing the associated words if any." + " Here's an example: \"" + format +"\"";
     }
 
     private Mono<Map<String, Object>> callOpenAI(String prompt) {
@@ -97,8 +111,7 @@ public class OpenAIService {
                     } else {
                         logger.error("Error calling OpenAI API: Unknown error");
                     }
-                });
-    }
+                });    }
 
     private Mono<Map<String, Object>> processApiResponse(Map<String, Object> response) {
         logger.info("API Response: {}", response);

@@ -1,116 +1,57 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8080/emotion"; // Adjust as per your backend setup
-
+const API_BASE_URL = "http://localhost:8080/emotion";
 const API_MOD_URL = "http://localhost:8080/models";
-
 const API_ADMIN_URL = "http://localhost:8080/admin";
-
 const API_USER_URL = "http://localhost:8080/users";
 
-// Create a new category
-export const createCategory = async (modelId, name) => {
-    return axios.post("http://localhost:8080/emotion/category", null, {
-      params: {
-        modelId,
-        name,
-      },
-    });
-  };
+// Category Functions
+export const createCategory = (modelId, name) =>
+  axios.post(`${API_BASE_URL}/category`, null, { params: { modelId, name } });
 
-  // Get categories by model ID
-  export const getCategoriesByModel = async (modelId) => {
-    return axios.get("http://localhost:8080/emotion/category", {
-      params: { modelId },
-    });
-  };
+export const getCategoriesByModel = (modelId) =>
+  axios.get(`${API_BASE_URL}/category`, { params: { modelId } });
 
-  // Update category
-  export const updateCategory = async (id, name) => {
-    return axios.put(`http://localhost:8080/emotion/category/${id}`, null, {
-      params: { name },
-    });
-  };
+export const updateCategory = (id, name) =>
+  axios.put(`${API_BASE_URL}/category/${id}`, null, { params: { name } });
 
-  // Delete category
-  export const deleteCategory = async (id) => {
-    return axios.delete(`http://localhost:8080/emotion/category/${id}`);
-  };
+export const deleteCategory = (id) =>
+  axios.delete(`${API_BASE_URL}/category/${id}`);
 
-export const createWordAssociation = (word, emotionCategoryId) =>
+// Model Functions
+export const getAllModels = () => axios.get(API_MOD_URL);
+
+export const createModel = (name) =>
+  axios.post(API_MOD_URL, null, { params: { name } });
+
+export const deleteModel = (id) =>
+  axios.delete(`${API_MOD_URL}/${id}`);
+
+// User Authentication Functions
+export const loginUser = (username, password) =>
+  axios.post(`${API_USER_URL}/login`, { username, password });
+
+export const registerUser = (username, password) =>
+  axios.post(`${API_USER_URL}/register`, { username, password });
+
+// Admin User Management Functions
+export const createUser = (username, password, role) =>
+  axios.post(`${API_ADMIN_URL}/create`, { username, password, role });
+
+export const getAllUsers = () => axios.get(API_ADMIN_URL);
+
+export const updateUser = (id, updatedUser) =>
+  axios.put(`${API_ADMIN_URL}/${id}`, updatedUser);
+
+export const deleteUser = (id) =>
+  axios.delete(`${API_ADMIN_URL}/${id}`);
+
+export const getAssociationsForModel = async (modelId) => {
+  return await axios.get(`${API_BASE_URL}/word-associations/${modelId}`);
+};
+export const getAllEmotionCategories = () => axios.get(`${API_BASE_URL}/emotion-categories`);
+export const createAssociation = (word, emotionCategoryId) =>
   axios.post(`${API_BASE_URL}/word-association`, null, {
     params: { word, emotionCategoryId },
   });
-
-export const deleteWordAssociation = (id) =>
-  axios.delete(`${API_BASE_URL}/word-association/${id}`);
-
-export const getAllModels = () => axios.get(API_MOD_URL);
-export const createModel = (name) => axios.post(API_MOD_URL, null, { params: { name } });
-export const deleteModel = (id) => axios.delete(`${API_MOD_URL}/${id}`);
-
-// user register
-export const registerUser = async (username: string, password: string) => {
-    try {
-        const response = await axios.post(`${API_URL}/register`, { username, password });
-        return response.data;
-    } catch (error) {
-        console.error("Error registering", error.response?.data || error.message);
-        throw error;
-    }
-}
-
-// admin create user
-export const createUser = async (username: string, password: string, role: string) => {
-    try {
-        const response = await axios.post(`${API_ADMIN_URL}/create`, { username, password, role });
-        return response.data;
-    } catch (error) {
-        console.error("Error creating user", error.response?.data || error.message);
-        throw error;
-    }
-}
-
-// admin create user
-export const createUser = async (username: string, password: string, role: string) => {
-    try {
-        const response = await axios.post(`${API_ADMIN_URL}/create`, { username, password, role });
-        return response.data;
-    } catch (error) {
-        console.error("Error creating user", error.response?.data || error.message);
-        throw error;
-    }
-}
-
-// admin get all users
-export const getAllUsers = async () => {
-    try {
-        const response = await axios.get(`${API_ADMIN_URL}`);
-        return response.data;
-    } catch (error) {
-        console.error("Error fetching users", error.response?.data || error.message);
-        throw error;
-    }
-}
-
-// admin update user
-export const updateUser = async (id: number, updatedUser: { username: string, password: string, role: string }) => {
-    try {
-        const response = await axios.put(`${API_URL}/${id}`, updatedUser);
-        return response.data;
-    } catch (error) {
-        console.error("Error updating user", error.response?.data || error.message);
-        throw error;
-    }
-}
-
-// admin delete user
-export const deleteUser = async (id: number) => {
-    try {
-        const response = await axios.delete(`${API_URL}/${id}`);
-        return response.data;
-    } catch (error) {
-        console.error("Error deleting user", error.response?.data || error.message);
-        throw error;
-    }
-}
+export const deleteAssociation = (id) => axios.delete(`${API_BASE_URL}/word-association/${id}`);

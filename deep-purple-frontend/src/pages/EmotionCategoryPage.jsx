@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ModelManagement from "@/components/ModelManagement";
 import EmotionCategoryManager from "@/components/EmotionCategoryManager/EmotionCategoryManager";
+import WordEmotionManager from "@/components/EmotionCategoryManager/WordEmotionAssociation";
 import { getAllModels } from "@/api";
 import {
   Select,
@@ -32,13 +33,15 @@ const EmotionCategoryPage = () => {
     fetchModels();
   }, []);
 
-  // Pass the fetchModels function to ModelManagement so it can re-fetch models after a new one is added
   return (
     <div className="container mx-auto mt-8 space-y-1">
       <h1 className="text-2xl font-bold text-center">Emotion Model Manager</h1>
       <div className="flex items-stretch">
-            <ModelManagement refreshModels={fetchModels} />
-          <div>
+        {/* Model Management Component */}
+        <ModelManagement refreshModels={fetchModels} />
+
+        <div>
+          {/* Select Model */}
           <Card className="p-4 shadow-lg">
             <CardHeader>
               <CardTitle>Select a Model</CardTitle>
@@ -76,12 +79,18 @@ const EmotionCategoryPage = () => {
             </CardContent>
           </Card>
 
+          {/* Emotion Category Manager */}
           {selectedModel && (
-                <EmotionCategoryManager selectedModelId={selectedModel.id} />
+            <EmotionCategoryManager selectedModelId={selectedModel.id} />
           )}
-          </div>
+
+          {/* Word-Emotion Manager */}
+          {selectedModel && (
+            <WordEmotionManager selectedModelId={selectedModel.id} />
+          )}
         </div>
-        </div>
+      </div>
+    </div>
   );
 };
 
