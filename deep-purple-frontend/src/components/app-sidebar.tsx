@@ -1,4 +1,4 @@
-import { Calendar, FileChartPie, Home, Inbox, Search, Settings } from "lucide-react";
+import { Calendar, FileChartPie, Home, Inbox, Search, Settings, Users } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -43,6 +43,11 @@ const items = [
     url: "/analysis",
     icon: FileChartPie,
   },
+  {
+      title: "Admin Dashboard",
+      url: "/admin",
+      icon: Users,
+    },
 ];
 
 export function AppSidebar() {
