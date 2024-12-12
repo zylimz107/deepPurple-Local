@@ -63,8 +63,8 @@ export default function LoginRegister({ onLogin }) {
 
   return (
     <div>
-      <Tabs defaultValue="account" className="w-[400px]">
-        <TabsList className="grid w-full grid-cols-2">
+      <Tabs defaultValue="account" className="w-[400px] mx-5 my-5">
+        <TabsList className="grid w-full grid-cols-2 bg-slate-700 text-background">
           <TabsTrigger value="login">Login</TabsTrigger>
           <TabsTrigger value="register">Register</TabsTrigger>
         </TabsList>

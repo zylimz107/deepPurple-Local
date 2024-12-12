@@ -71,7 +71,7 @@ const WordEmotionManager = ({ selectedModelId }) => {
   };
 
   return (
-    <Card className="p-4 shadow-lg mt-4">
+    <Card className="p-4 shadow-lg">
       <CardHeader>
         <CardTitle>Manage Word-Emotion Associations</CardTitle>
       </CardHeader>
@@ -112,12 +112,13 @@ const WordEmotionManager = ({ selectedModelId }) => {
             <Button onClick={handleAddAssociation}>Add</Button>
           </div>
 
-          <ul>
+          <ul className="bg-slate-100 p-2 rounded divide-y divide-slate-700">
             {associations.length > 0 ? (
               associations.map((assoc) => (
-                <li key={assoc.id} className="flex justify-between items-center mb-2">
+                <li key={assoc.id} className="flex justify-between items-center ">
                   <span>{assoc.word} - {assoc.emotionCategory.emotion}</span>
                   <Button
+                    className="my-1"
                     variant="destructive"
                     size="sm"
                     onClick={() => handleDeleteAssociation(assoc.id)}

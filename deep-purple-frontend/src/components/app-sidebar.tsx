@@ -15,9 +15,15 @@ import { Link } from "react-router-dom"; // Import Link for navigation
 const items = [
   {
     title: "Home",
-    url: "/home",
-    icon: Home,
-    roles: ["admin", "user"], // Accessible by both admins and users
+    url: "/admin",
+    icon: Users,
+    roles: ["admin"], // Accessible only by admins
+  },
+  {
+    title: "Home",
+    url: "/user",
+    icon: User,
+    roles: ["user"], // Accessible only by users
   },
   {
     title: "Inbox",
@@ -47,18 +53,6 @@ const items = [
     title: "Analysis",
     url: "/analysis",
     icon: FileChartPie,
-    roles: ["user"], // Accessible only by users
-  },
-  {
-    title: "Admin Dashboard",
-    url: "/admin",
-    icon: Users,
-    roles: ["admin"], // Accessible only by admins
-  },
-  {
-    title: "User Dashboard",
-    url: "/user",
-    icon: User,
     roles: ["user"], // Accessible only by users
   },
 ];

@@ -56,7 +56,7 @@ const EmotionCategoryManager = ({ selectedModelId }) => {
             Add
           </Button>
         </div>
-        <ul className="bg-gray-50 p-2 rounded divide-y divide-gray-200">
+        <ul className="bg-slate-100 p-2 rounded divide-y divide-slate-700">
           {categories.map((category) => (
             <li key={category.id} className="py-2 px-3">
               {category.emotion}

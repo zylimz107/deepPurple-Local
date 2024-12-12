@@ -1,6 +1,5 @@
 import React from "react";
 // Import your page components
-import HomePage from "@/pages/HomePage";
 import InboxPage from "@/pages/InboxPage";
 import SearchPage from "@/pages/SearchPage";
 import SettingsPage from "@/pages/SettingsPage";
@@ -20,7 +19,6 @@ interface Route {
 
 // Define your routes
 const routes: Route[] = [
-  { path: "/home", component: HomePage, exact: true },
   { path: "/inbox", component: InboxPage },
   { path: "/emotion", component: EmotionCategoryPage },
   { path: "/search", component: SearchPage },
