@@ -43,7 +43,7 @@ const CreateUserDialog = () => {
       const response = await createUser(username, password, role);
 
       console.log(response);
-      if (response.status == 201) {
+      if (response.status === 201) {
         alert("user created successfully", response.data);
       }
 

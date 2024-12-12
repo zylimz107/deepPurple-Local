@@ -1,4 +1,4 @@
-import { Calendar, FileChartPie, Home, Inbox, Search, Settings, Users } from "lucide-react";
+import { FileChartPie, Home, Inbox, Search, Settings, Users, Activity, User } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -11,46 +11,62 @@ import {
 } from "@/components/ui/sidebar";
 import { Link } from "react-router-dom"; // Import Link for navigation
 
-// Menu items
+// Menu items with role-based access
 const items = [
   {
     title: "Home",
-    url: "/",
+    url: "/home",
     icon: Home,
+    roles: ["admin", "user"], // Accessible by both admins and users
   },
   {
     title: "Inbox",
     url: "/inbox",
     icon: Inbox,
+    roles: ["admin", "user"],
   },
   {
     title: "Emotion Model Manager",
     url: "/emotion",
-    icon: Calendar,
+    icon: Activity,
+    roles: ["user"], // Accessible only by users
   },
   {
     title: "Search",
     url: "/search",
     icon: Search,
+    roles: ["admin", "user"],
   },
   {
     title: "Settings",
     url: "/settings",
     icon: Settings,
+    roles: ["admin", "user"],
   },
   {
     title: "Analysis",
     url: "/analysis",
     icon: FileChartPie,
+    roles: ["user"], // Accessible only by users
   },
   {
-      title: "Admin Dashboard",
-      url: "/admin",
-      icon: Users,
-    },
+    title: "Admin Dashboard",
+    url: "/admin",
+    icon: Users,
+    roles: ["admin"], // Accessible only by admins
+  },
+  {
+    title: "User Dashboard",
+    url: "/user",
+    icon: User,
+    roles: ["user"], // Accessible only by users
+  },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ userRole }: { userRole: string | null }) {
+  // Filter items based on the userRole
+  const filteredItems = items.filter((item) => item.roles.includes(userRole || ""));
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -58,7 +74,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {filteredItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link to={item.url}>

@@ -83,7 +83,7 @@ public class OpenAIService {
                 "    }\n" +
                 "  ],\n" +
                 "  \"confidenceRating\": 75,\n" +
-                "  \"summary\": \"The text contains the words \"awesome, incredible\", suggesting a feeling of joy, etc.\"\n" +
+                "  \"summary\": \"The text contains the associated words \"awesome, incredible\", suggesting a feeling of joy, etc.\"\n" +
                 "}";
 
         return "Consider only the following emotions: [" + emotionsList + "] in the text: \"" + content + "\". "

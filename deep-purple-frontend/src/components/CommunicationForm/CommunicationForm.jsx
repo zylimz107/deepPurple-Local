@@ -255,22 +255,51 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                 <Separator className="my-4" />
 
                 {fetchedData && (
-                    <div className="text-center">
-                        <h2>Analysis Results</h2>
-                        <PieChart width={400} height={400}>
-                            <Pie
-                                data={pieChartData}
-                                dataKey="value"
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={150}
-                                fill="#8884d8"
-                                label
-                            />
-                            <Tooltip />
-                        </PieChart>
-                    </div>
-                )}
+        <CardContent className="mb-5">
+          <h3 className="text-2xl font-semibold">Analysis Results:</h3>
+          {fetchedData.error ? (
+            <div className="text-red-500"><strong>Error:</strong> {fetchedData.error}</div>
+          ) : (
+            <>
+              {/* Emotion Pie Chart */}
+              <div className="mb-4">
+                <h4 className="font-medium text-purple-800">Emotion Distribution</h4>
+                <PieChart width={300} height={300}>
+                  <Pie
+                    data={pieChartData}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius={60}
+                    outerRadius={80}
+                    label
+                  />
+                  <Tooltip />
+                </PieChart>
+              </div>
+
+              {/* Other Operation Details */}
+              <div><strong>ID:</strong> {fetchedData.id || 'N/A'}</div>
+              <div><strong>Content:</strong> {fetchedData.content || 'N/A'}</div>
+              <div><strong>Primary Emotion:</strong>
+                {fetchedData.primaryEmotion.emotion}
+              </div>
+              <div><strong>Secondary Emotions:</strong>
+                {Array.isArray(fetchedData.secondaryEmotions) && fetchedData.secondaryEmotions.length > 0 ? (
+                  <ul>
+                    {fetchedData.secondaryEmotions.map((secEmotion, index) => (
+                      <li key={index}>{secEmotion.emotion}</li>
+                    ))}
+                  </ul>
+                ) : 'No secondary emotions available'}
+              </div>
+              <div><strong>Model:</strong> {fetchedData.modelName || 'N/A'}</div>
+              <div><strong>Confidence Rating:</strong> {fetchedData.confidenceRating || 'N/A'}</div>
+              <div><strong>Summary:</strong> {fetchedData.summary || 'N/A'}</div>
+              <div><strong>Timestamp:</strong> {fetchedData.timestamp ? new Date(fetchedData.timestamp).toLocaleString() : 'N/A'}</div>
+            </>
+          )}
+        </CardContent>
+      )}
             </CardContent>
         </Card>
     );
