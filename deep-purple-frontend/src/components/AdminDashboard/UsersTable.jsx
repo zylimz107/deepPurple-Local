@@ -7,10 +7,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { getAllUsers } from "../../api.jsx"
-import { Eye, EyeOff } from 'lucide-react'
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+import { Button } from "@/components/ui/button";
+import { getAllUsers } from "../../api.jsx";
+import { Eye, EyeOff, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
 const UsersTable = () => {
   const [users, setUsers] = useState([]);
@@ -36,7 +45,7 @@ const UsersTable = () => {
   }
 
   return (
-    <Table>
+    <Table className="w-[750px]">
       <TableCaption>List of Users</TableCaption>
       <TableHeader>
         <TableRow>
@@ -71,7 +80,24 @@ const UsersTable = () => {
             </TableCell>
             <TableCell>{user.role}</TableCell>
             <TableCell className="text-right">
-
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        <span>Update</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        <span>Delete</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
             </TableCell>
           </TableRow>
         ))}
