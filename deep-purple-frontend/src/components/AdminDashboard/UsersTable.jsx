@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import UpdateUserDialog from "./UpdateUserDialog";
 import { Button } from "@/components/ui/button";
-import { getAllUsers } from "../../api.jsx";
+import { getAllUsers, deleteUser } from "../../api.jsx";
 import { Eye, EyeOff, MoreHorizontal, Trash2, Pencil } from 'lucide-react';
 
 const UsersTable = () => {
@@ -25,15 +25,16 @@ const UsersTable = () => {
   const [selectedUserID, setSelectedUserID] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await getAllUsers()
-        setUsers(response.data)
-      } catch (error) {
-        console.error("Failed to fetch users:", error)
-      }
+  const fetchUsers = async () => {
+    try {
+      const response = await getAllUsers()
+      setUsers(response.data)
+    } catch (error) {
+      console.error("Failed to fetch users:", error)
     }
+  }
+
+  useEffect(() => {
     fetchUsers()
   }, [])
 
@@ -56,6 +57,17 @@ const UsersTable = () => {
       )
     );
   };
+
+  const handleDeleteUser = async (userID: number) => {
+      try {
+        deleteUser(userID);
+        alert("User deleted successfully");
+      } catch (error) {
+        console.error("Failed to delete user:", error);
+        alert("Failed to delete user.");
+      }
+    await fetchUsers();
+   }
 
   return (
     <>
@@ -108,7 +120,7 @@ const UsersTable = () => {
                      <Pencil className="mr-2 h-4 w-4" />
                       Update
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => handleDeleteUser(user.id)}>
                       <Trash2 className="mr-2 h-4 w-4" />
                       <span>Delete</span>
                     </DropdownMenuItem>
@@ -124,7 +136,7 @@ const UsersTable = () => {
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         userID={selectedUserID || undefined}
-        onUserUpdated={handleUserUpdate} // Pass the callback
+        onUserUpdated={handleUserUpdate}
       />
     </>
   )
