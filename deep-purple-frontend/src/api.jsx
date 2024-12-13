@@ -40,6 +40,8 @@ export const createUser = (username, password, role) =>
 
 export const getAllUsers = () => axios.get(API_ADMIN_URL);
 
+export const getUserByID = (id) => axios.get(`${API_ADMIN_URL}/${id}`)
+
 export const updateUser = (id, updatedUser) =>
   axios.put(`${API_ADMIN_URL}/${id}`, updatedUser);
 
