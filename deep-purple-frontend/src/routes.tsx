@@ -7,6 +7,7 @@ import AnalysisPage from "@/pages/AnalysisPage";
 import EmotionCategoryPage from "@/pages/EmotionCategoryPage";
 import AdminDashboardPage from "@/pages/AdminDashboardPage";
 import UserDashboard from "@/pages/UserDashboard";
+import LandingPage from "@/pages/LandingPage"
 
 // Define the shape of a route
 interface Route {
@@ -26,6 +27,7 @@ const routes: Route[] = [
   { path: "/analysis", component: AnalysisPage},
   { path: "/admin", component: AdminDashboardPage},
   { path: "/user", component: UserDashboard},
+  { path: "/", component: LandingPage},
 ];
 
 export default routes;

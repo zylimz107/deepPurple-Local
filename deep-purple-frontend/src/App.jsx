@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
 import LoginRegister from "@/components/LoginPage/Login";
 import Layout from "@/components/layout";
 import AdminDashboardPage from "@/pages/AdminDashboardPage";
@@ -9,6 +9,7 @@ import AnalysisPage from "@/pages/AnalysisPage";
 import SettingsPage from "@/pages/SettingsPage";
 import SearchPage from "@/pages/SearchPage";
 import InboxPage from "@/pages/InboxPage";
+import LandingPage from "@/pages/LandingPage";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 
@@ -23,6 +24,7 @@ const App = () => {
   const handleLogout = () => {
     setUserRole(null);
     localStorage.removeItem("userRole");
+    window.location.href = "/";
   };
 
   const ProtectedRoute = ({ element, allowedRoles }) => {
@@ -42,7 +44,7 @@ const App = () => {
 
       <Routes>
         {/* Public Route */}
-        <Route path="/" element={<AnalysisPage />} />
+        <Route path="/" element={<LandingPage />} />
 
         {/* Shared Authenticated Routes */}
         {userRole && (
