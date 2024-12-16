@@ -1,9 +1,9 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8080/emotion";
-const API_MOD_URL = "http://localhost:8080/models";
-const API_ADMIN_URL = "http://localhost:8080/admin";
-const API_USER_URL = "http://localhost:8080/users";
+const API_BASE_URL = "http://deeppurpleapp-env.eba-im9nsvbi.ap-southeast-1.elasticbeanstalk.com/emotion";
+const API_MOD_URL = "http://deeppurpleapp-env.eba-im9nsvbi.ap-southeast-1.elasticbeanstalk.com/models";
+const API_ADMIN_URL = "http://deeppurpleapp-env.eba-im9nsvbi.ap-southeast-1.elasticbeanstalk.com/admin";
+const API_USER_URL = "http://deeppurpleapp-env.eba-im9nsvbi.ap-southeast-1.elasticbeanstalk.com/users";
 
 // Category Functions
 export const createCategory = (modelId, name) =>
