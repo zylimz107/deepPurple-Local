@@ -1,10 +1,10 @@
 import axios from "axios";
 
-const API_URL = "http://deep107.ap-southeast-1.elasticbeanstalk.com/api/communications";
-const API_BASE_URL = "http://deep107.ap-southeast-1.elasticbeanstalk.com/emotion";
+const API_URL = "https://m5iqrefzne.execute-api.ap-southeast-1.amazonaws.com/prod/communications";
+const API_BASE_URL = "https://m5iqrefzne.execute-api.ap-southeast-1.amazonaws.com/prod/emotion";
 const API_MOD_URL = "https://m5iqrefzne.execute-api.ap-southeast-1.amazonaws.com/prod/models";
-const API_ADMIN_URL = "http://deep107.ap-southeast-1.elasticbeanstalk.com/admin";
-const API_USER_URL = "http://deep107.ap-southeast-1.elasticbeanstalk.com/users";
+const API_ADMIN_URL = "https://m5iqrefzne.execute-api.ap-southeast-1.amazonaws.com/prod/admin";
+const API_USER_URL = "https://m5iqrefzne.execute-api.ap-southeast-1.amazonaws.com/prod/users";
 
 // Category Functions
 export const createCategory = (modelId, name) =>

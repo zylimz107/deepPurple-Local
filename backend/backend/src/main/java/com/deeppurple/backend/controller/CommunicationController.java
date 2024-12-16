@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/communications")
+@RequestMapping("/communications")
 public class CommunicationController {
     private final CommunicationService service;
     private String extractTextFromDocx(MultipartFile file) throws IOException {
