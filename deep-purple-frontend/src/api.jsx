@@ -1,5 +1,6 @@
 import axios from "axios";
 
+const API_URL = "http://deeppurpleapp-env.eba-im9nsvbi.ap-southeast-1.elasticbeanstalk.com/api/communications";
 const API_BASE_URL = "http://deeppurpleapp-env.eba-im9nsvbi.ap-southeast-1.elasticbeanstalk.com/emotion";
 const API_MOD_URL = "http://deeppurpleapp-env.eba-im9nsvbi.ap-southeast-1.elasticbeanstalk.com/models";
 const API_ADMIN_URL = "http://deeppurpleapp-env.eba-im9nsvbi.ap-southeast-1.elasticbeanstalk.com/admin";
