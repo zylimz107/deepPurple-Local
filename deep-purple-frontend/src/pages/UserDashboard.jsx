@@ -8,7 +8,7 @@ const UserDashboard = () => {
 
     const handleGetAll = async () => {
         try {
-            const res = await axios.get("http://localhost:8080/api/communications");
+            const res = await axios.get("http://localhost:8080/communications");
             const data = res.data;
 
             // Process data here (as shown earlier)

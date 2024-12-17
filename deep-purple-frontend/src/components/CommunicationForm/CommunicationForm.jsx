@@ -65,23 +65,23 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                 formData.append('file', file); // Append the file
                 formData.append('modelName', modelName); // Append the model name
     
-                res = await axios.post('http://deeppurpleapp-env.eba-im9nsvbi.ap-southeast-1.elasticbeanstalk.com/api/communications/upload', formData, {
+                res = await axios.post('http://localhost:8080/communications/upload', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
             } else if (operation === 'save') {
-                res = await axios.post('http://deeppurpleapp-env.eba-im9nsvbi.ap-southeast-1.elasticbeanstalk.com/api/communications', dataToSend);
+                res = await axios.post('http://localhost:8080/communications', dataToSend);
             } else if (operation === 'update') {
-                res = await axios.put(`http://deeppurpleapp-env.eba-im9nsvbi.ap-southeast-1.elasticbeanstalk.com/api/communications/${id}`, dataToSend);
+                res = await axios.put(`http://localhost:8080/communications/${id}`, dataToSend);
             } else if (operation === 'delete') {
-                await axios.delete(`http://localhost:8080/api/communications/${id}`);
+                await axios.delete(`http://localhost:8080/communications/${id}`);
                 setDeleteNotification(`Communication with ID ${id} has been deleted.`);
                 setContent('');
                 setId('');
                 return;
             } else if (operation === 'get') {
-                res = await axios.get(`http://deeppurpleapp-env.eba-im9nsvbi.ap-southeast-1.elasticbeanstalk.com/api/communications/${id}`);
+                res = await axios.get(`http://localhost:8080/communications/${id}`);
                 if (res.data) setFetchedData(res.data);
                 return;
             }
@@ -100,7 +100,7 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
         clearNotification();
         clearResponse();
         try {
-            const res = await axios.get('http://localhost:8080/api/communications');
+            const res = await axios.get('http://localhost:8080/communications');
             setAllCommunications(res.data);
         } catch (error) {
             setResponse({ error: error.message });
