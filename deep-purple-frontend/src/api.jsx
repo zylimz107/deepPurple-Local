@@ -1,10 +1,9 @@
 import axios from "axios";
 
-const API_URL = "https://m5iqrefzne.execute-api.ap-southeast-1.amazonaws.com/prod/communications";
-const API_BASE_URL = "https://m5iqrefzne.execute-api.ap-southeast-1.amazonaws.com/prod/emotion";
-const API_MOD_URL = "https://m5iqrefzne.execute-api.ap-southeast-1.amazonaws.com/prod/models";
-const API_ADMIN_URL = "https://m5iqrefzne.execute-api.ap-southeast-1.amazonaws.com/prod/admin";
-const API_USER_URL = "https://m5iqrefzne.execute-api.ap-southeast-1.amazonaws.com/prod/users";
+const API_BASE_URL = "http://localhost:8080/emotion";
+const API_MOD_URL = "http://localhost:8080/models";
+const API_ADMIN_URL = "http://localhost:8080/admin";
+const API_USER_URL = "http://localhost:8080/users";
 
 // Category Functions
 export const createCategory = (modelId, name) =>
