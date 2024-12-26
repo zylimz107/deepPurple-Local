@@ -3,9 +3,12 @@ package com.deeppurple.backend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-@Entity
-@Table(name = "word_emotion_associations")
 @Data
+@Entity
+@Table(name = "word_emotion_associations", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"word", "emotion_category_id"})
+})
+
 public class WordEmotionAssociation {
 
     @Id
@@ -13,6 +16,8 @@ public class WordEmotionAssociation {
     private Long id;
 
     private String word;  // The word that is associated with an emotion
+
+    private boolean predefined = false; // Indicates if this is a predefined model
 
     @ManyToOne
     @JoinColumn(name = "emotion_category_id")

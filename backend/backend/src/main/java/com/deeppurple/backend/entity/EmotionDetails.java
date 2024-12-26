@@ -2,6 +2,8 @@ package com.deeppurple.backend.entity;
 
 import jakarta.persistence.Embeddable;
 
+
+
 @Embeddable
 public class EmotionDetails {
     private String emotion;

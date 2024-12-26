@@ -78,14 +78,6 @@ public class CommunicationController {
                 .defaultIfEmpty(ResponseEntity.badRequest().build());
     }
 
-    // Get communication by ID
-    @GetMapping("/{id}")
-    public Mono<ResponseEntity<Communication>> getCommunicationById(@PathVariable Long id) {
-        return service.getCommunicationById(id)
-                .map(ResponseEntity::ok)  // Return 200 OK with the communication entity
-                .defaultIfEmpty(ResponseEntity.notFound().build());  // Return 404 if not found
-    }
-
     // Update communication by ID with model and classification type
     @PutMapping("/{id}")
     public Mono<ResponseEntity<Communication>> updateCommunication(

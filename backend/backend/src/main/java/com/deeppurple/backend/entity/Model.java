@@ -15,7 +15,10 @@ public class Model {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String name; // e.g., "Model A", "Model B", "Model C"
+
+    private boolean predefined = false; // Indicates if this is a predefined model
 
     @OneToMany(mappedBy = "model", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

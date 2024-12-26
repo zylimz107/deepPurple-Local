@@ -20,6 +20,10 @@ public class WordEmotionAssociationService {
         EmotionCategory category = emotionCategoryRepository.findById(emotionCategoryId)
                 .orElseThrow(() -> new RuntimeException("Emotion category not found"));
 
+        if (category.isPredefined()) {
+            throw new RuntimeException("Cannot assign to predefined categories");
+        }
+
         WordEmotionAssociation association = new WordEmotionAssociation();
         association.setWord(word);
         association.setEmotionCategory(category);
@@ -28,6 +32,12 @@ public class WordEmotionAssociationService {
     }
 
     public void deleteWordEmotionAssociation(Long id) {
+       WordEmotionAssociation word = wordEmotionAssociationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("word not found"));
+
+        if (word.isPredefined()) {
+            throw new RuntimeException("Cannot delete predefined words");
+        }
         wordEmotionAssociationRepository.deleteById(id);
     }
 }

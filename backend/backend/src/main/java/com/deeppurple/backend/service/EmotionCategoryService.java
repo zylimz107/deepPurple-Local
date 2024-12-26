@@ -24,7 +24,9 @@ public class EmotionCategoryService {
         // Find the model
         Model model = modelRepository.findById(modelId)
                 .orElseThrow(() -> new RuntimeException("Model not found"));
-
+        if (model.isPredefined()) {
+            throw new RuntimeException("Cannot assign to predefined models");
+        }
         // Create a new emotion category
         EmotionCategory category = new EmotionCategory();
         category.setEmotion(name);
@@ -51,6 +53,10 @@ public class EmotionCategoryService {
         EmotionCategory category = emotionCategoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Emotion category not found"));
 
+        if (category.isPredefined()) {
+            throw new RuntimeException("Cannot modify predefined emotion categories");
+        }
+
         // Update the emotion name
         category.setEmotion(name);
 
@@ -59,8 +65,11 @@ public class EmotionCategoryService {
 
     // Delete an emotion category
     public void deleteEmotionCategory(Long id) {
-        if (!emotionCategoryRepository.existsById(id)) {
-            throw new RuntimeException("Emotion category not found");
+        EmotionCategory category = emotionCategoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Emotion category not found"));
+
+        if (category.isPredefined()) {
+            throw new RuntimeException("Cannot delete predefined emotion categories");
         }
         emotionCategoryRepository.deleteById(id);
     }

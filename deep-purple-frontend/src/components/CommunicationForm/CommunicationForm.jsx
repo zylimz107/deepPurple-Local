@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Pie, PieChart, Tooltip } from "recharts";
 import {
     Alert,
     AlertDescription,
@@ -27,7 +26,6 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
     const [id, setId] = useState('');
     const [modelName, setModelName] = useState('');
     const [file, setFile] = useState(null); // State for the uploaded file
-    const [fetchedData, setFetchedData] = useState(null);
     const [models, setModels] = useState([]);
 
     const handleFileChange = (e) => {
@@ -52,7 +50,6 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
         e.preventDefault();
         clearNotification();
         clearResponse();
-        setFetchedData(null);
         setAllCommunications([]);
     
         try {
@@ -79,10 +76,6 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                 setDeleteNotification(`Communication with ID ${id} has been deleted.`);
                 setContent('');
                 setId('');
-                return;
-            } else if (operation === 'get') {
-                res = await axios.get(`http://localhost:8080/communications/${id}`);
-                if (res.data) setFetchedData(res.data);
                 return;
             }
     
@@ -115,31 +108,12 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
             return "Update existing analysis data by ID.";
           case "delete":
             return "Delete analysis data by ID.";
-          case "get":
-            return "Get analysis data by its ID.";
           case "upload":
             return "Upload a file for analysis.";
           default:
             return "Please select an operation.";
         }
     };
-
-    // Prepare pie chart data from response
-    const pieChartData = fetchedData ? [
-        {
-            name: fetchedData.primaryEmotion.emotion,
-            value: fetchedData.primaryEmotion.percentage,
-            fill: "hsl(var(--chart-1))", // Customize the color for primary emotion
-        },
-        ...fetchedData.secondaryEmotions.map((secEmotion, index) => {
-            const fillColor = `hsl(var(--chart-${index + 2}))`;
-            return {
-                name: secEmotion.emotion,
-                value: secEmotion.percentage,
-                fill: fillColor,
-            };
-        })
-    ] : [];
 
     return (
         <Card className="p-4">
@@ -174,7 +148,6 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                                     <SelectItem value="save">Save</SelectItem>
                                     <SelectItem value="update">Update</SelectItem>
                                     <SelectItem value="delete">Delete</SelectItem>
-                                    <SelectItem value="get">Get by ID</SelectItem>
                                     <SelectItem value="upload">Upload File</SelectItem> {/* New Upload option */}
                                 </SelectGroup>
                             </SelectContent>
@@ -219,13 +192,13 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                                 <SelectItem key={model.id} value={model.name}>
                               {model.name}
                             </SelectItem>
-          ))
-        ) : (
-          <SelectItem value="loading" disabled>Loading models...</SelectItem> 
-        )}
-      </SelectGroup>
-    </SelectContent>
-  </Select>
+                          ))
+                        ) : (
+                          <SelectItem value="loading" disabled>Loading models...</SelectItem> 
+                          )}
+                      </SelectGroup>
+                    </SelectContent>
+                    </Select>
                     </div>
 
                     {operation !== 'upload' && operation !== 'save' && (
@@ -253,53 +226,6 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                     Get All Communications
                 </Button>
                 <Separator className="my-4" />
-
-                {fetchedData && (
-        <CardContent className="mb-5">
-          <h3 className="text-2xl font-semibold">Analysis Results:</h3>
-          {fetchedData.error ? (
-            <div className="text-red-500"><strong>Error:</strong> {fetchedData.error}</div>
-          ) : (
-            <>
-              {/* Emotion Pie Chart */}
-              <div className="mb-4">
-                <h4 className="font-medium text-purple-800">Emotion Distribution</h4>
-                <PieChart width={300} height={300}>
-                  <Pie
-                    data={pieChartData}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={60}
-                    outerRadius={80}
-                    label
-                  />
-                  <Tooltip />
-                </PieChart>
-              </div>
-
-              {/* Other Operation Details */}
-              <div><strong>ID:</strong> {fetchedData.id || 'N/A'}</div>
-              <div><strong>Content:</strong> {fetchedData.content || 'N/A'}</div>
-              <div><strong>Primary Emotion:</strong>
-                {fetchedData.primaryEmotion.emotion}
-              </div>
-              <div><strong>Secondary Emotions:</strong>
-                {Array.isArray(fetchedData.secondaryEmotions) && fetchedData.secondaryEmotions.length > 0 ? (
-                  <ul>
-                    {fetchedData.secondaryEmotions.map((secEmotion, index) => (
-                      <li key={index}>{secEmotion.emotion}</li>
-                    ))}
-                  </ul>
-                ) : 'No secondary emotions available'}
-              </div>
-              <div><strong>Model:</strong> {fetchedData.modelName || 'N/A'}</div>
-              <div><strong>Confidence Rating:</strong> {fetchedData.confidenceRating || 'N/A'}</div>
-              <div><strong>Summary:</strong> {fetchedData.summary || 'N/A'}</div>
-              <div><strong>Timestamp:</strong> {fetchedData.timestamp ? new Date(fetchedData.timestamp).toLocaleString() : 'N/A'}</div>
-            </>
-          )}
-        </CardContent>
-      )}
             </CardContent>
         </Card>
     );

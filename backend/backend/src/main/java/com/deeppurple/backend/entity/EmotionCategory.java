@@ -8,13 +8,18 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "emotion_categories")
+@Table(name = "emotion_categories", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"emotion", "model_id"})
+})
 public class EmotionCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     private String emotion; // e.g., "Happy", "Sad", etc.
+
+    private boolean predefined = false; // Indicates if this is a predefined model
 
     @ManyToOne
     @JoinColumn(name = "model_id", nullable = false)
