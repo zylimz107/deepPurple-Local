@@ -7,13 +7,13 @@ import jakarta.persistence.Embeddable;
 @Embeddable
 public class EmotionDetails {
     private String emotion;
-    private int percentage;
+    private double percentage;
 
     // Default constructor
     public EmotionDetails() {}
 
     // Parameterized constructor
-    public EmotionDetails(String emotion, int percentage) {
+    public EmotionDetails(String emotion, double percentage) {
         this.emotion = emotion;
         this.percentage = percentage;
     }
@@ -27,11 +27,11 @@ public class EmotionDetails {
         this.emotion = emotion;
     }
 
-    public int getPercentage() {
+    public double getPercentage() {
         return percentage;
     }
 
-    public void setPercentage(int percentage) {
+    public void setPercentage(double percentage) {
         this.percentage = percentage;
     }
 }

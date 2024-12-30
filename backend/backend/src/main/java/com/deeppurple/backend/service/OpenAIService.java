@@ -13,8 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class OpenAIService {
@@ -33,7 +35,6 @@ public class OpenAIService {
                 .build();
     }
 
-    @Cacheable(value = "emotionCache", key = "#content + #modelName")
     public Mono<Map<String, Object>> analyzeEmotionWithModel(String content, String modelName) {
         logger.info("Analyzing content '{}' with model '{}'", content, modelName);
 
@@ -58,44 +59,88 @@ public class OpenAIService {
                 .map(EmotionCategory::getEmotion)
                 .reduce((a, b) -> a + ", " + b)
                 .orElse("none");
+        // Filter associations to include only words that appear in the content
+        List<WordEmotionAssociation> filteredAssociations = associations.stream()
+                .filter(association -> content.contains(association.getWord())) // Only include words that are in the content
+                .collect(Collectors.toList());
+        // Count emotions using the lexicon
+        Map<String, Integer> emotionCounts = analyzeTextWithLexicon(content, filteredAssociations);
 
-        // Check if any of the words from associations appear in the content
-        String matchedWords = associations.stream()
-                .filter(association -> content.contains(association.getWord()))  // Check if the word is present in the content
+
+        // Convert emotion counts to string for prompt
+        String emotionCountsString = emotionCounts.entrySet().stream()
+                .map(entry -> entry.getKey() + ": " + entry.getValue())
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("none");
+
+        // Build associated words for the prompt (words tied to emotions)
+        String associatedWordsString = filteredAssociations.stream()
                 .map(association -> association.getWord() + " (" + association.getEmotionCategory().getEmotion() + ")")
                 .reduce((a, b) -> a + ", " + b)
                 .orElse("none");
 
+        logger.info(associatedWordsString);
+
+        // Format the prompt for GPT
         String format = "{\n" +
                 "  \"primaryEmotion\": {\n" +
                 "    \"emotion\": \"joy\",\n" +
-                "    \"percentage\": 40\n" +
+                "    \"percentage\": 40.50\n" +
                 "  },\n" +
                 "  \"secondaryEmotions\": [\n" +
                 "    {\n" +
                 "      \"emotion\": \"fear\",\n" +
-                "      \"percentage\": 30\n" +
+                "      \"percentage\": 30.50\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"emotion\": \"insecurity\",\n" +
-                "      \"percentage\": 30\n" +
+                "      \"percentage\": 29.00\n" +
                 "    }\n" +
                 "  ],\n" +
                 "  \"confidenceRating\": 75,\n" +
                 "  \"summary\": \"The text contains the associated words \"awesome, incredible\", suggesting a feeling of joy, etc.\"\n" +
                 "}";
 
+        // Include lexicon emotion counts, associated words, and the content in the prompt
         return "Consider only the following emotions: [" + emotionsList + "] in the text: \"" + content + "\". "
-                + "The content contains the following words associated with emotions: " + matchedWords + ". "
+                + "The content contains the following emotion counts based on the lexicon: " + emotionCountsString + ". "
+                + "The following words are associated with emotions: " + associatedWordsString + ". "
                 + "Respond with a JSON object containing: primaryEmotion with its percentage, secondaryEmotions with their percentages, "
-                + "confidenceRating (out of 100), and a summary describing the associated words if any." + " Here's an example: \"" + format +"\"";
+                + "confidenceRating (out of 100), and a summary listing the associated words." + " Here's an example: \"" + format +"\"";
     }
+
+
+    public Map<String, Integer> analyzeTextWithLexicon(String content, List<WordEmotionAssociation> associations) {
+        Map<String, Integer> emotionCounts = new HashMap<>();
+
+        // Initialize all emotions to 0
+        for (String emotion : associations.stream().map(association -> association.getEmotionCategory().getEmotion()).distinct().toList()) {
+            emotionCounts.put(emotion, 0);
+        }
+
+        // Tokenize input text (simple split by space)
+        String[] words = content.toLowerCase().split("\\W+");
+
+        // Check if each word is in the associations and update counts
+        for (String word : words) {
+            for (WordEmotionAssociation association : associations) {
+                if (word.contains(association.getWord().toLowerCase())) {
+                    String emotion = association.getEmotionCategory().getEmotion();
+                    emotionCounts.put(emotion, emotionCounts.getOrDefault(emotion, 0) + 1);
+                }
+            }
+        }
+
+        return emotionCounts;
+    }
+
+
 
     private Mono<Map<String, Object>> callOpenAI(String prompt) {
         Map<String, Object> requestBody = Map.of(
                 "model", "gpt-4o-mini",
                 "messages", List.of(Map.of("role", "user", "content", prompt)),
-                "max_tokens", 1000
+                "max_tokens", 10000
         );
 
         return webClient.post()

@@ -84,12 +84,14 @@ const ModelManagement = ({ refreshModels }) => {
                   className="flex justify-between items-center border p-2 rounded shadow-sm"
                 >
                   <strong className="text-lg">{model.name}</strong>
+                  {!model.predefined && (
                   <Button
                     onClick={() => handleDeleteModel(model.id)}
                     variant="destructive"
                   >
-                    Delete
+                  Delete
                   </Button>
+                  )}
                 </li>
               ))}
             </ul>

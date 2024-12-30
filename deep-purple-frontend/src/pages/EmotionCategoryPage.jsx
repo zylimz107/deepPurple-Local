@@ -83,11 +83,6 @@ const EmotionCategoryPage = () => {
           {selectedModel && (
             <EmotionCategoryManager selectedModelId={selectedModel.id} />
           )}
-
-          {/* Word-Emotion Manager */}
-          {selectedModel && (
-            <WordEmotionManager selectedModelId={selectedModel.id} />
-          )}
         </div>
       </div>
     </div>

@@ -32,11 +32,11 @@ public class CommunicationService {
                     // Extract values from the emotion analysis
                     Map<String, Object> primaryEmotionData = (Map<String, Object>) emotionAnalysis.get("primaryEmotion");
                     String primaryEmotion = (String) primaryEmotionData.get("emotion");
-                    int primaryEmotionPercentage = (int) primaryEmotionData.get("percentage");
+                    double primaryEmotionPercentage = (double) primaryEmotionData.get("percentage");
 
                     List<Map<String, Object>> secondaryEmotionsData = (List<Map<String, Object>>) emotionAnalysis.get("secondaryEmotions");
                     List<EmotionDetails> secondaryEmotions = secondaryEmotionsData.stream()
-                            .map(emotion -> new EmotionDetails((String) emotion.get("emotion"), (int) emotion.get("percentage")))
+                            .map(emotion -> new EmotionDetails((String) emotion.get("emotion"), (double) emotion.get("percentage")))
                             .collect(Collectors.toList());
 
                     String summary = (String) emotionAnalysis.get("summary");
@@ -71,11 +71,11 @@ public class CommunicationService {
                             .map(emotionAnalysis -> {
                                 Map<String, Object> primaryEmotionData = (Map<String, Object>) emotionAnalysis.get("primaryEmotion");
                                 String primaryEmotion = (String) primaryEmotionData.get("emotion");
-                                int primaryEmotionPercentage = (int) primaryEmotionData.get("percentage");
+                                double primaryEmotionPercentage = (double) primaryEmotionData.get("percentage");
 
                                 List<Map<String, Object>> secondaryEmotionsData = (List<Map<String, Object>>) emotionAnalysis.get("secondaryEmotions");
                                 List<EmotionDetails> secondaryEmotions = secondaryEmotionsData.stream()
-                                        .map(emotion -> new EmotionDetails((String) emotion.get("emotion"), (int) emotion.get("percentage")))
+                                        .map(emotion -> new EmotionDetails((String) emotion.get("emotion"), (Double) emotion.get("percentage")))
                                         .collect(Collectors.toList());
 
                                 String summary = (String) emotionAnalysis.get("summary");
