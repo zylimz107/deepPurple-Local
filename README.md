@@ -1,6 +1,6 @@
 # Deep Purple
 
-This repository contains the backend for the **Deep Purple** project, a text analysis software that deciphers emotions in client communications. The backend is built using Spring Boot and connects to a PostgreSQL database.
+This repository contains the local version of the backend and frontend for the **Deep Purple** project, a text analysis software that deciphers emotions in client communications. The backend is built using Spring Boot and connects to a PostgreSQL database.
 
 ## Features
 
