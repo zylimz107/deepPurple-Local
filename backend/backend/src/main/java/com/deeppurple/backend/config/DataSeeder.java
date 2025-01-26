@@ -3,11 +3,9 @@ package com.deeppurple.backend.config;
 
 import com.deeppurple.backend.entity.EmotionCategory;
 import com.deeppurple.backend.entity.Model;
-import com.deeppurple.backend.entity.Users;
 import com.deeppurple.backend.entity.WordEmotionAssociation;
 import com.deeppurple.backend.repository.EmotionCategoryRepository;
 import com.deeppurple.backend.repository.ModelRepository;
-import com.deeppurple.backend.repository.UsersRepository;
 import com.deeppurple.backend.repository.WordEmotionAssociationRepository;
 import org.springframework.stereotype.Component;
 
@@ -30,25 +28,19 @@ public class DataSeeder {
     private final ModelRepository modelRepository;
     private final EmotionCategoryRepository emotionCategoryRepository;
     private final WordEmotionAssociationRepository wordRepository;
-    private final UsersRepository userRepository;
 
     public DataSeeder(ModelRepository modelRepository,
                       EmotionCategoryRepository emotionCategoryRepository,
-                      WordEmotionAssociationRepository wordRepository, UsersRepository userRepository) {
+                      WordEmotionAssociationRepository wordRepository) {
         this.modelRepository = modelRepository;
         this.emotionCategoryRepository = emotionCategoryRepository;
         this.wordRepository = wordRepository;
-        this.userRepository = userRepository;
     }
 
     @PostConstruct
     public void init() throws IOException {
         if (modelRepository.count() == 0) {
             seedModelsFromJson();
-        }
-        if (userRepository.count() == 0) {
-            createUser("admin", "password", "admin");
-            createUser("user", "password", "user");
         }
     }
 
@@ -97,13 +89,6 @@ public class DataSeeder {
         association.setPredefined(true); // Assuming predefined here, you can modify this
         association.setEmotionCategory(category);
         wordRepository.save(association);
-    }
-    private void createUser(String username, String password, String role) {
-        Users user = new Users();
-        user.setUsername(username);
-        user.setPassword(password); // Store plain password (not encrypted)
-        user.setRole(role);
-        userRepository.save(user); // Save to the repository
     }
 }
 

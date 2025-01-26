@@ -98,15 +98,16 @@ public class OpenAIService {
                 "    }\n" +
                 "  ],\n" +
                 "  \"confidenceRating\": 75,\n" +
-                "  \"summary\": \"The text contains the associated words \"awesome, incredible\", suggesting a feeling of joy, etc.\"\n" +
+                "  \"summary\": \"A brief description.\"\n" +
                 "}";
 
         // Include lexicon emotion counts, associated words, and the content in the prompt
         return "Consider only the following emotions: [" + emotionsList + "] in the text: \"" + content + "\". "
                 + "The content contains the following emotion counts based on the lexicon: " + emotionCountsString + ". "
                 + "The following words are associated with emotions: " + associatedWordsString + ". "
-                + "Respond with a JSON object containing: primaryEmotion with its percentage, secondaryEmotions with their percentages, "
-                + "confidenceRating (out of 100), and a summary listing the associated words." + " Here's an example: \"" + format +"\"";
+                + "Analyze and respond with a JSON object containing: primaryEmotion with its percentage, secondaryEmotions with their percentages, "
+                + "confidenceRating (out of 100), and a summary listing the associated words." + " Here's an example: \"" + format +"\""
+                + "You may integrate your own analysis into the results but keep to the format";
     }
 
 
