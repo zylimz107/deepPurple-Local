@@ -14,10 +14,12 @@ import java.util.stream.Collectors;
 public class CommunicationService {
     private final CommunicationRepository repository;
     private final OpenAIService openAIService;
+    private final MissingEmotionService missingEmotionService;
 
-    public CommunicationService(CommunicationRepository repository, OpenAIService openAIService) {
+    public CommunicationService(CommunicationRepository repository, OpenAIService openAIService, MissingEmotionService missingEmotionService) {
         this.repository = repository;
         this.openAIService = openAIService;
+        this.missingEmotionService = missingEmotionService;
     }
 
     // Retrieve all communications
@@ -27,33 +29,37 @@ public class CommunicationService {
 
     // Save new communication with model and classification type
     public Mono<Communication> saveCommunication(String modelName, Communication communication) {
-        return openAIService.analyzeEmotionWithModel(communication.getContent(), modelName)
-                .map(emotionAnalysis -> {
-                    // Extract values from the emotion analysis
-                    Map<String, Object> primaryEmotionData = (Map<String, Object>) emotionAnalysis.get("primaryEmotion");
-                    String primaryEmotion = (String) primaryEmotionData.get("emotion");
-                    double primaryEmotionPercentage = (double) primaryEmotionData.get("percentage");
+        // Step 1: Ensure missing emotions are identified and stored first
+        return missingEmotionService.processMissingEmotions(communication.getContent(), modelName)
+                .then(Mono.defer(() -> { // Step 2: Call OpenAI analysis only after step 1 is completed
+                    return openAIService.analyzeEmotionWithModel(communication.getContent(), modelName)
+                            .map(emotionAnalysis -> {
+                                // Extract values from the emotion analysis
+                                Map<String, Object> primaryEmotionData = (Map<String, Object>) emotionAnalysis.get("primaryEmotion");
+                                String primaryEmotion = (String) primaryEmotionData.get("emotion");
+                                double primaryEmotionPercentage = (double) primaryEmotionData.get("percentage");
 
-                    List<Map<String, Object>> secondaryEmotionsData = (List<Map<String, Object>>) emotionAnalysis.get("secondaryEmotions");
-                    List<EmotionDetails> secondaryEmotions = secondaryEmotionsData.stream()
-                            .map(emotion -> new EmotionDetails((String) emotion.get("emotion"), (double) emotion.get("percentage")))
-                            .collect(Collectors.toList());
+                                List<Map<String, Object>> secondaryEmotionsData = (List<Map<String, Object>>) emotionAnalysis.get("secondaryEmotions");
+                                List<EmotionDetails> secondaryEmotions = secondaryEmotionsData.stream()
+                                        .map(emotion -> new EmotionDetails((String) emotion.get("emotion"), (double) emotion.get("percentage")))
+                                        .collect(Collectors.toList());
 
-                    String summary = (String) emotionAnalysis.get("summary");
-                    int confidenceRating = (int) emotionAnalysis.get("confidenceRating");
+                                String summary = (String) emotionAnalysis.get("summary");
+                                int confidenceRating = (int) emotionAnalysis.get("confidenceRating");
 
-                    // Set the fields in the communication object
-                    communication.setPrimaryEmotion(new EmotionDetails(primaryEmotion, primaryEmotionPercentage));
-                    communication.setSecondaryEmotions(secondaryEmotions);
-                    communication.setSummary(summary);
-                    communication.setConfidenceRating(confidenceRating);
-                    System.out.println("Primary Emotion: " + communication.getPrimaryEmotion());
-                    System.out.println("Secondary Emotions: " + communication.getSecondaryEmotions());
+                                // Set the fields in the communication object
+                                communication.setPrimaryEmotion(new EmotionDetails(primaryEmotion, primaryEmotionPercentage));
+                                communication.setSecondaryEmotions(secondaryEmotions);
+                                communication.setSummary(summary);
+                                communication.setConfidenceRating(confidenceRating);
+                                System.out.println("Primary Emotion: " + communication.getPrimaryEmotion());
+                                System.out.println("Secondary Emotions: " + communication.getSecondaryEmotions());
 
-
-                    return repository.save(communication);
-                });
+                                return repository.save(communication);
+                            });
+                }));
     }
+
 
     // Get communication by ID
     public Mono<Communication> getCommunicationById(Long id) {

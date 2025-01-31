@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,7 +62,15 @@ public class OpenAIService {
                 .orElse("none");
         // Filter associations to include only words that appear in the content
         List<WordEmotionAssociation> filteredAssociations = associations.stream()
-                .filter(association -> content.contains(association.getWord())) // Only include words that are in the content
+                .filter(association -> {
+                    String word = association.getWord();
+                    // Check if the word is an emoji
+                    if (word.matches("\\p{So}|\\p{Cs}")) {
+                        return content.contains(word); // Match emoji directly
+                    }
+                    // Check if it's a full-word match (using word boundaries)
+                    return content.matches(".*\\b" + Pattern.quote(word) + "\\b.*");
+                })
                 .collect(Collectors.toList());
         // Count emotions using the lexicon
         Map<String, Integer> emotionCounts = analyzeTextWithLexicon(content, filteredAssociations);
@@ -107,7 +116,7 @@ public class OpenAIService {
                 + "The following words are associated with emotions: " + associatedWordsString + ". "
                 + "Analyze and respond with a JSON object containing: primaryEmotion with its percentage, secondaryEmotions with their percentages, "
                 + "confidenceRating (out of 100), and a summary listing the associated words." + " Here's an example: \"" + format +"\""
-                + "You may integrate your own analysis into the results but keep to the format";
+                + "Your analysis should be the dominant result but keep to the format";
     }
 
 

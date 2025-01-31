@@ -20,7 +20,7 @@ public class Model {
 
     private boolean predefined = false; // Indicates if this is a predefined model
 
-    @OneToMany(mappedBy = "model", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "model", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<EmotionCategory> emotionCategories = new ArrayList<>(); // Initialize as empty list
 }

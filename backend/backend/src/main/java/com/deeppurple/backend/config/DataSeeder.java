@@ -22,37 +22,43 @@ import java.util.Map;
 @Component
 public class DataSeeder {
 
-    @Value("classpath:lexicon.json") // The path to your JSON file
-    private Resource lexiconFile;
+    @Value("classpath:lexicon_nrc.json")
+    private Resource nrcLexiconFile;
+
+    @Value("classpath:lexicon_finance.json")
+    private Resource financeLexiconFile;
+
+    @Value("classpath:lexicon_social.json")
+    private Resource socialLexiconFile;
 
     private final ModelRepository modelRepository;
     private final EmotionCategoryRepository emotionCategoryRepository;
     private final WordEmotionAssociationRepository wordRepository;
+    private final ObjectMapper objectMapper;
 
     public DataSeeder(ModelRepository modelRepository,
                       EmotionCategoryRepository emotionCategoryRepository,
-                      WordEmotionAssociationRepository wordRepository) {
+                      WordEmotionAssociationRepository wordRepository,
+                      ObjectMapper objectMapper) {
         this.modelRepository = modelRepository;
         this.emotionCategoryRepository = emotionCategoryRepository;
         this.wordRepository = wordRepository;
+        this.objectMapper = objectMapper;
     }
 
     @PostConstruct
     public void init() throws IOException {
         if (modelRepository.count() == 0) {
-            seedModelsFromJson();
+            seedModelFromJson("GeneralModel", nrcLexiconFile);
+            seedModelFromJson("FinanceModel", financeLexiconFile);
+            seedModelFromJson("SocialModel", socialLexiconFile);
         }
     }
 
-    private void seedModelsFromJson() throws IOException {
-        // Read the JSON file and map it to a Map<String, List<String>> structure
-        ObjectMapper objectMapper = new ObjectMapper();
+    private void seedModelFromJson(String modelName, Resource lexiconFile) throws IOException {
         Map<String, List<String>> lexiconData = objectMapper.readValue(lexiconFile.getInputStream(), Map.class);
+        Model model = createModel(modelName, true, modelRepository);
 
-        // Assuming you have at least one predefined model for association
-        Model model = createModel("NRCModel", true, modelRepository);
-
-        // Loop through the words in the lexicon and associate them with emotion categories
         lexiconData.forEach((word, emotions) -> {
             emotions.forEach(emotion -> {
                 EmotionCategory category = findOrCreateEmotionCategory(model, emotion);
@@ -69,13 +75,11 @@ public class DataSeeder {
     }
 
     private EmotionCategory findOrCreateEmotionCategory(Model model, String emotion) {
-        // Try to find the emotion category in the database
         EmotionCategory category = emotionCategoryRepository.findByModelAndEmotion(model, emotion);
         if (category == null) {
-            // If it doesn't exist, create a new one
             category = new EmotionCategory();
             category.setEmotion(emotion);
-            category.setPredefined(true); // Assuming predefined here, you can modify this
+            category.setPredefined(true);
             category.setModel(model);
             category = emotionCategoryRepository.save(category);
         }
@@ -83,12 +87,10 @@ public class DataSeeder {
     }
 
     private void createWordEmotionAssociation(String word, EmotionCategory category) {
-        // Create the word-emotion association
         WordEmotionAssociation association = new WordEmotionAssociation();
         association.setWord(word);
-        association.setPredefined(true); // Assuming predefined here, you can modify this
+        association.setPredefined(true);
         association.setEmotionCategory(category);
         wordRepository.save(association);
     }
 }
-
