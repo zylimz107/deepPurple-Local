@@ -15,7 +15,7 @@ This repository contains the local version of the backend for the **Deep Purple*
 
 ### Prerequisites
 
-- Java 23 or higher
+- Java 21 or higher
 - Maven
 - PostgreSQL
 
@@ -35,19 +35,21 @@ Press Clone.
 
 4. Database Setup:
 
-The database runs on aws RDS with postgre.
+The database can be configured on aws RDS with postgresql or with local postgresql.
 
-Your application.properties should look like this:
-spring.application.name=backend
-spring.datasource.url=jdbc:postgresql://<endpoint URL>:5432/<RDS database name>
-spring.datasource.username=RDSusername
-spring.datasource.password=RDSpassword
+	Your application.properties should look like this:
+	spring.application.name=backend
+	spring.datasource.url=jdbc:postgresql://<endpoint URL>:5432/<RDS database name> OR jdbc:postgresql://localhost:5432/deeppurple
+	spring.datasource.username= <username>
+	spring.datasource.password= <password>
 
 
 4. Set Up OpenAI API Key and RDS credentials in environment variables:
 
 Add my OpenAI API key, RDSusername, RDSpassword(**ask me when you want to set up, or you can use your own if you have**) to your environment variables: 
-if using intelliJ,after running the application once go to run > Edit Configurations: look for Environment Variables under backendapplication: Paste"OPENAI_API_KEY= (openai key here); username=...; password=... ". 
+
+	if using intelliJ,after running the application once go to run > Edit Configurations: 
+	look for Environment Variables under backendapplication > Paste"OPENAI_API_KEY= (openai key here); username=<user>; password=<pw> ".
 
 5. Build the Project
 
@@ -63,40 +65,7 @@ go to Build > build project
 
 6. Run BackendApplication.java on intelliJ
 
-
-7. If you are familiar with postman, you can test it with the address: http://localhost:8080/api/communications.
-Use a json for POST method, example:
-{
-  "content": "I am real glad you're here",
-  "modelName": "gpt-4o-mini",
-  "classificationType": "neutral"
-}
-
-8. Else, you can setup the simple react provided:
-   
-**Frontend Instructions**
-Note that this frontend is just for testing purposes, there is no aesthetic consideration or extra functionality.
-
-Install dependencies: Navigate to the frontend folder and install the required dependencies:
-
-npm install
-
-Start the React frontend: Run the following command to start the frontend:
-
-
-npm start
-
-Operations:
-
-Save: Input content and select the "Save" operation to store a new communication.
-
-Update: Provide the communication ID and new content to update an existing communication.
-
-Delete: Enter the communication ID to delete a specific communication.
-
-Get by ID: Fetch a communication by its ID and view the emotional analysis results.
-
-Get All: Retrieve and display all communications stored in the backend.
+7. you can use the frontend hosted on app.purpleproj.click to see how it works.
 
 Ensure that the backend is running and accessible at http://localhost:8080 for proper communication with the React frontend.
 
