@@ -37,7 +37,7 @@ Press Clone.
 
 The database can be configured on aws RDS with postgresql or with local postgresql.
 
-	Your application.properties should look like this:
+Your application.properties should look like this:
 	spring.application.name=backend
 	spring.datasource.url=jdbc:postgresql://<endpoint URL>:5432/<RDS database name> OR jdbc:postgresql://localhost:5432/deeppurple
 	spring.datasource.username= <username>
@@ -47,7 +47,9 @@ The database can be configured on aws RDS with postgresql or with local postgres
 4. Set Up OpenAI API Key and RDS credentials in environment variables:
 
 Add my OpenAI API key, RDSusername, RDSpassword(**ask me when you want to set up, or you can use your own if you have**) to your environment variables: 
-if using intelliJ,after running the application once go to run > Edit Configurations: look for Environment Variables under backendapplication: Paste"OPENAI_API_KEY= (openai key here); username=...; password=... ".
+
+	if using intelliJ,after running the application once go to run > Edit Configurations: 
+	look for Environment Variables under backendapplication > Paste"OPENAI_API_KEY= (openai key here); username=<user>; password=<pw> ".
 
 5. Build the Project
 
