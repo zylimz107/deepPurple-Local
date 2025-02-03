@@ -26,10 +26,12 @@ public class OpenAIService {
     private final WebClient webClient;
     private final ModelRepository modelRepository;
     private final WordEmotionAssociationRepository wordEmotionAssociationRepository;
+    private final GeminiService geminiService;
 
-    public OpenAIService(ModelRepository modelRepository, WordEmotionAssociationRepository wordEmotionAssociationRepository) {
+    public OpenAIService(ModelRepository modelRepository, WordEmotionAssociationRepository wordEmotionAssociationRepository, GeminiService geminiService) {
         this.modelRepository = modelRepository;
         this.wordEmotionAssociationRepository = wordEmotionAssociationRepository;
+        this.geminiService = geminiService;
         this.webClient = WebClient.builder()
                 .baseUrl("https://api.openai.com/v1")
                 .defaultHeader("Authorization", "Bearer " + System.getenv("OPENAI_API_KEY"))
@@ -50,9 +52,20 @@ public class OpenAIService {
                     // Fetch word-emotion associations for the model's emotion categories
                     List<WordEmotionAssociation> associations = wordEmotionAssociationRepository.findByEmotionCategoryIn(emotionCategories);
                     String prompt = createPrompt(content, emotionCategories, associations);
-                    return callOpenAI(prompt);
+                    // Call both OpenAI and Gemini APIs in parallel
+                    return Mono.zip(callOpenAI(prompt), geminiService.analyzeEmotionWithGemini(prompt))
+                            .map(results -> mergeResponses(results.getT1(), results.getT2())); // Merge results
                 });
     }
+
+    private Map<String, Object> mergeResponses(Map<String, Object> openAIResponse, Map<String, Object> geminiResponse) {
+        int openAIConfidence = (Integer) openAIResponse.getOrDefault("confidenceRating", 0);
+        int geminiConfidence = (Integer) geminiResponse.getOrDefault("confidenceRating", 0);
+
+        // Return the response with the higher confidence rating
+        return openAIConfidence >= geminiConfidence ? openAIResponse : geminiResponse;
+    }
+
 
     private String createPrompt(String content, List<EmotionCategory> emotionCategories, List<WordEmotionAssociation> associations) {
         // Build the list of emotions
@@ -107,7 +120,7 @@ public class OpenAIService {
                 "    }\n" +
                 "  ],\n" +
                 "  \"confidenceRating\": 75,\n" +
-                "  \"summary\": \"A brief description.\"\n" +
+                "  \"summary\": \"A brief description\" + modelVersion called ( gpt 4o-mini OR gemini-1.5-flash ), no other options.\"\n" +
                 "}";
 
         // Include lexicon emotion counts, associated words, and the content in the prompt
@@ -115,7 +128,7 @@ public class OpenAIService {
                 + "The content contains the following emotion counts based on the lexicon: " + emotionCountsString + ". "
                 + "The following words are associated with emotions: " + associatedWordsString + ". "
                 + "Analyze and respond with a JSON object containing: primaryEmotion with its percentage, secondaryEmotions with their percentages, "
-                + "confidenceRating (out of 100), and a summary listing the associated words." + " Here's an example: \"" + format +"\""
+                + "confidenceRating (out of 100), and a summary listing the associated words along with the modelVersion used for the api call." + " Here's an example: \"" + format +"\""
                 + "Your analysis should be the dominant result but keep to the format";
     }
 
