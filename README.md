@@ -37,7 +37,7 @@ Press Clone.
 
 The database can be configured on aws RDS with postgresql or with local postgresql.
 
-Your application.properties should look like this:
+	Your application.properties should look like this:
 	spring.application.name=backend
 	spring.datasource.url=jdbc:postgresql://<endpoint URL>:5432/<RDS database name> OR jdbc:postgresql://localhost:5432/deeppurple
 	spring.datasource.username= <username>
