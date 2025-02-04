@@ -10,5 +10,5 @@ public interface ModelRepository extends JpaRepository<Model, Long> {
     // Custom query to find a model by its name
     Optional<Model> findByName(String name);
 
-    List<Model> findByIsPredefinedFalse();
+    List<Model> findByPredefinedFalse();
 }

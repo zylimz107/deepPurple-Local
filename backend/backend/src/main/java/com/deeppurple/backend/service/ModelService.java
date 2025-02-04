@@ -32,7 +32,7 @@ public class ModelService {
     }
 
     public List<Model> getNonPredefinedModels() {
-        return modelRepository.findByIsPredefinedFalse();
+        return modelRepository.findByPredefinedFalse();
     }
 
 
