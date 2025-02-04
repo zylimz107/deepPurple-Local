@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -59,12 +58,35 @@ public class OpenAIService {
     }
 
     private Map<String, Object> mergeResponses(Map<String, Object> openAIResponse, Map<String, Object> geminiResponse) {
-        int openAIConfidence = (Integer) openAIResponse.getOrDefault("confidenceRating", 0);
-        int geminiConfidence = (Integer) geminiResponse.getOrDefault("confidenceRating", 0);
+        logger.info("Analyzing gptconfidence and geminiConfidence");
 
-        // Return the response with the higher confidence rating
-        return openAIConfidence >= geminiConfidence ? openAIResponse : geminiResponse;
+        double openAIConfidence = toDouble(openAIResponse.get("confidenceRating"));
+        double geminiConfidence = toDouble(geminiResponse.get("confidenceRating"));
+        logger.info("Analyzing gptconfidence and geminiConfidence 2");
+
+        Map<String, Object> selectedResponse;
+
+        // Determine the response with the higher confidence rating
+        if (openAIConfidence >= geminiConfidence) {
+            selectedResponse = openAIResponse;
+            selectedResponse.put("modelVersion", "gpt-4o-mini"); // Set model version for OpenAI response
+        } else {
+            selectedResponse = geminiResponse;
+            selectedResponse.put("modelVersion", "gemini-1.5-flash"); // Set model version for Gemini response
+        }
+
+        // Return the response with the higher confidence rating and the associated model version
+        return selectedResponse;
     }
+
+
+    private double toDouble(Object value) {
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
+        }
+        return 0.0; // Default value if null or not a number
+    }
+
 
 
     private String createPrompt(String content, List<EmotionCategory> emotionCategories, List<WordEmotionAssociation> associations) {
@@ -119,8 +141,8 @@ public class OpenAIService {
                 "      \"percentage\": 29.00\n" +
                 "    }\n" +
                 "  ],\n" +
-                "  \"confidenceRating\": 75,\n" +
-                "  \"summary\": \"A brief description\" + modelVersion called ( gpt 4o-mini OR gemini-1.5-flash ), no other options.\"\n" +
+                "  \"confidenceRating\": 75.24,\n" +
+                "  \"summary\": \"A brief description\",\n" +
                 "}";
 
         // Include lexicon emotion counts, associated words, and the content in the prompt
@@ -128,7 +150,9 @@ public class OpenAIService {
                 + "The content contains the following emotion counts based on the lexicon: " + emotionCountsString + ". "
                 + "The following words are associated with emotions: " + associatedWordsString + ". "
                 + "Analyze and respond with a JSON object containing: primaryEmotion with its percentage, secondaryEmotions with their percentages, "
-                + "confidenceRating (out of 100), and a summary listing the associated words along with the modelVersion used for the api call." + " Here's an example: \"" + format +"\""
+                + "confidenceRating (out of 100.00), derived by predicting how likely the detected emotions are correct based on word usage patterns, emotion co-occurrence, and typical sentiment analysis results from similar texts,"
+                + "a summary including a list of the associated words,"
+                + " Adhere strictly to this format: \"" + format +"\""
                 + "Your analysis should be the dominant result but keep to the format";
     }
 

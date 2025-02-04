@@ -26,6 +26,12 @@ public class ModelController {
         return ResponseEntity.ok(models);  // This will return the List<Model> with emotion categories
     }
 
+    @GetMapping("/custom")
+    public ResponseEntity<List<Model>> getNonPredefinedModels() {
+        List<Model> models = modelService.getNonPredefinedModels();
+        return ResponseEntity.ok(models);  // This will return the List<Model> with emotion categories
+    }
+
 
     @DeleteMapping("/{id}")
     public void deleteModel(@PathVariable Long id) {

@@ -45,13 +45,15 @@ public class CommunicationService {
                                         .collect(Collectors.toList());
 
                                 String summary = (String) emotionAnalysis.get("summary");
-                                int confidenceRating = (int) emotionAnalysis.get("confidenceRating");
+                                String modelVersion = (String) emotionAnalysis.get("modelVersion");
+                                double confidenceRating = (double) emotionAnalysis.get("confidenceRating");
 
                                 // Set the fields in the communication object
                                 communication.setPrimaryEmotion(new EmotionDetails(primaryEmotion, primaryEmotionPercentage));
                                 communication.setSecondaryEmotions(secondaryEmotions);
                                 communication.setSummary(summary);
                                 communication.setConfidenceRating(confidenceRating);
+                                communication.setModelVersion(modelVersion);
                                 System.out.println("Primary Emotion: " + communication.getPrimaryEmotion());
                                 System.out.println("Secondary Emotions: " + communication.getSecondaryEmotions());
 
@@ -64,35 +66,6 @@ public class CommunicationService {
     // Get communication by ID
     public Mono<Communication> getCommunicationById(Long id) {
         return Mono.justOrEmpty(repository.findById(id)); // Return Mono.empty() if not found
-    }
-
-    // Update communication by ID with re-analysis
-    public Mono<Communication> updateCommunication(Long id, String modelName, Communication updatedCommunication) {
-        return getCommunicationById(id)
-                .flatMap(existingCommunication -> {
-                    existingCommunication.setContent(updatedCommunication.getContent());
-
-                    // Re-analyze the emotion for the updated content
-                    return openAIService.analyzeEmotionWithModel(existingCommunication.getContent(), modelName)
-                            .map(emotionAnalysis -> {
-                                Map<String, Object> primaryEmotionData = (Map<String, Object>) emotionAnalysis.get("primaryEmotion");
-                                String primaryEmotion = (String) primaryEmotionData.get("emotion");
-                                double primaryEmotionPercentage = (double) primaryEmotionData.get("percentage");
-
-                                List<Map<String, Object>> secondaryEmotionsData = (List<Map<String, Object>>) emotionAnalysis.get("secondaryEmotions");
-                                List<EmotionDetails> secondaryEmotions = secondaryEmotionsData.stream()
-                                        .map(emotion -> new EmotionDetails((String) emotion.get("emotion"), (Double) emotion.get("percentage")))
-                                        .collect(Collectors.toList());
-
-                                String summary = (String) emotionAnalysis.get("summary");
-
-                                existingCommunication.setPrimaryEmotion(new EmotionDetails(primaryEmotion, primaryEmotionPercentage));
-                                existingCommunication.setSecondaryEmotions(secondaryEmotions);
-                                existingCommunication.setSummary(summary);
-
-                                return repository.save(existingCommunication);
-                            });
-                });
     }
 
     // Delete communication by ID

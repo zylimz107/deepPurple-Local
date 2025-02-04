@@ -17,18 +17,21 @@ public class CommunicationDTO {
     private EmotionDetails primaryEmotion; // Updated to capture the primary emotion with percentage
     private List<EmotionDetails> secondaryEmotions; // Updated to capture secondary emotions with percentages
     private String summary; // Optional: to store the analysis summary
-    private int confidenceRating;
+    private double confidenceRating;
+    private String modelVersion;
+
 
     // Default constructor
-    public CommunicationDTO(int confidenceRating) {
+    public CommunicationDTO(double confidenceRating) {
         this.confidenceRating = confidenceRating;
     }
 
     // Parameterized constructor
-    public CommunicationDTO(String content, String modelName, int confidenceRating) {
+    public CommunicationDTO(String content, String modelName, double confidenceRating, String modelVersion) {
         this.content = content;
         this.modelName = modelName;
         this.confidenceRating = confidenceRating;
+        this.modelVersion = modelVersion;
     }
 
     // Getters and Setters
@@ -73,11 +76,19 @@ public class CommunicationDTO {
     }
 
 
-    public int getConfidenceRating() {
+    public double getConfidenceRating() {
         return confidenceRating;
     }
 
-    public void setConfidenceRating(int confidenceRating) {
+    public void setConfidenceRating(double confidenceRating) {
         this.confidenceRating = confidenceRating;
+    }
+
+    public String getModelVersion() {
+        return modelVersion;
+    }
+
+    public void setModelVersion(String modelVersion) {
+        this.modelVersion = modelVersion;
     }
 }

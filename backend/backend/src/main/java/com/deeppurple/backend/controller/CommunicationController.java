@@ -58,6 +58,7 @@ public class CommunicationController {
             @Valid @RequestBody CommunicationDTO communicationDTO) {
         Communication communication = new Communication();
         communication.setModelName(communicationDTO.getModelName());
+        communication.setModelVersion(communicationDTO.getModelVersion());
         communication.setContent(communicationDTO.getContent());
         EmotionDetails primaryEmotion = communicationDTO.getPrimaryEmotion();
         if (primaryEmotion != null) {
@@ -76,32 +77,6 @@ public class CommunicationController {
         return service.saveCommunication(communicationDTO.getModelName(), communication)
                 .map(savedCommunication -> ResponseEntity.ok(savedCommunication))
                 .defaultIfEmpty(ResponseEntity.badRequest().build());
-    }
-
-    // Update communication by ID with model and classification type
-    @PutMapping("/{id}")
-    public Mono<ResponseEntity<Communication>> updateCommunication(
-            @PathVariable Long id,
-            @Valid @RequestBody CommunicationDTO communicationDTO) {
-        Communication updatedCommunication = new Communication();
-        updatedCommunication.setModelName(communicationDTO.getModelName());
-        updatedCommunication.setContent(communicationDTO.getContent());
-        EmotionDetails primaryEmotion = communicationDTO.getPrimaryEmotion();
-        if (primaryEmotion != null) {
-            updatedCommunication.setPrimaryEmotion(primaryEmotion); // Set EmotionDetails object (with emotion and percentage)
-        }
-
-        // Extract and set secondary emotions as a list of EmotionDetails
-        List<EmotionDetails> secondaryEmotions = communicationDTO.getSecondaryEmotions();
-        if (secondaryEmotions != null && !secondaryEmotions.isEmpty()) {
-            updatedCommunication.setSecondaryEmotions(secondaryEmotions); // Set list of EmotionDetails
-        }
-        updatedCommunication.setSummary(communicationDTO.getSummary());
-        updatedCommunication.setConfidenceRating(communicationDTO.getConfidenceRating());
-
-        return service.updateCommunication(id, communicationDTO.getModelName(), updatedCommunication)
-                .map(updated -> ResponseEntity.ok(updated))
-                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     // Delete communication by ID

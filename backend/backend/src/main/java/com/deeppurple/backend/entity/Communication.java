@@ -27,7 +27,9 @@ public class Communication {
 
     @Column(length = 1000)
     private String summary;
-    private int confidenceRating;
+    private double confidenceRating;
+
+    private String modelVersion;
 
     private String modelName;  // The model used for analysis
 

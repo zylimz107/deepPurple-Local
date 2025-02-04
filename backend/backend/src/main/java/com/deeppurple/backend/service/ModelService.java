@@ -31,6 +31,11 @@ public class ModelService {
         return modelRepository.findAll();
     }
 
+    public List<Model> getNonPredefinedModels() {
+        return modelRepository.findByIsPredefinedFalse();
+    }
+
+
     public void deleteModel(Long id) {
         Model model = modelRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Model not found"));
