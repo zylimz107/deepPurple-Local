@@ -26,11 +26,13 @@ public class OpenAIService {
     private final ModelRepository modelRepository;
     private final WordEmotionAssociationRepository wordEmotionAssociationRepository;
     private final GeminiService geminiService;
+    private final MistralService mistralService;
 
-    public OpenAIService(ModelRepository modelRepository, WordEmotionAssociationRepository wordEmotionAssociationRepository, GeminiService geminiService) {
+    public OpenAIService(ModelRepository modelRepository, WordEmotionAssociationRepository wordEmotionAssociationRepository, GeminiService geminiService, MistralService mistralService) {
         this.modelRepository = modelRepository;
         this.wordEmotionAssociationRepository = wordEmotionAssociationRepository;
         this.geminiService = geminiService;
+        this.mistralService = mistralService;
         this.webClient = WebClient.builder()
                 .baseUrl("https://api.openai.com/v1")
                 .defaultHeader("Authorization", "Bearer " + System.getenv("OPENAI_API_KEY"))
@@ -52,33 +54,40 @@ public class OpenAIService {
                     List<WordEmotionAssociation> associations = wordEmotionAssociationRepository.findByEmotionCategoryIn(emotionCategories);
                     String prompt = createPrompt(content, emotionCategories, associations);
                     // Call both OpenAI and Gemini APIs in parallel
-                    return Mono.zip(callOpenAI(prompt), geminiService.analyzeEmotionWithGemini(prompt))
-                            .map(results -> mergeResponses(results.getT1(), results.getT2())); // Merge results
+                    return Mono.zip(
+                            callOpenAI(prompt),
+                            geminiService.analyzeEmotionWithGemini(prompt),
+                            mistralService.analyzeWithMistral(prompt)
+                    ).map(results -> mergeResponses(results.getT1(), results.getT2(), results.getT3()));
+ // Merge results
                 });
     }
 
-    private Map<String, Object> mergeResponses(Map<String, Object> openAIResponse, Map<String, Object> geminiResponse) {
-        logger.info("Analyzing gptconfidence and geminiConfidence");
+    private Map<String, Object> mergeResponses(Map<String, Object> openAIResponse, Map<String, Object> geminiResponse, Map<String, Object> mistralResponse) {
+        logger.info("Analyzing confidence ratings for OpenAI, Gemini, and Mistral");
 
         double openAIConfidence = toDouble(openAIResponse.get("confidenceRating"));
         double geminiConfidence = toDouble(geminiResponse.get("confidenceRating"));
-        logger.info("Analyzing gptconfidence and geminiConfidence 2");
+        double mistralConfidence = toDouble(mistralResponse.get("confidenceRating"));
+        logger.info("Confidence Ratings - OpenAI: {}, Gemini: {}, Mistral: {}", openAIConfidence, geminiConfidence, mistralConfidence);
 
         Map<String, Object> selectedResponse;
+        String selectedModel;
 
-        // Determine the response with the higher confidence rating
-        if (openAIConfidence >= geminiConfidence) {
+        if (openAIConfidence >= geminiConfidence && openAIConfidence >= mistralConfidence) {
             selectedResponse = openAIResponse;
-            selectedResponse.put("modelVersion", "gpt-4o-mini"); // Set model version for OpenAI response
-        } else {
+            selectedModel = "gpt-4o-mini";
+        } else if (geminiConfidence >= openAIConfidence && geminiConfidence >= mistralConfidence) {
             selectedResponse = geminiResponse;
-            selectedResponse.put("modelVersion", "gemini-1.5-flash"); // Set model version for Gemini response
+            selectedModel = "gemini-1.5-flash";
+        } else {
+            selectedResponse = mistralResponse;
+            selectedModel = "mistral-small-latest";
         }
 
-        // Return the response with the higher confidence rating and the associated model version
+        selectedResponse.put("modelVersion", selectedModel); // Attach model version
         return selectedResponse;
     }
-
 
     private double toDouble(Object value) {
         if (value instanceof Number) {
@@ -142,7 +151,7 @@ public class OpenAIService {
                 "    }\n" +
                 "  ],\n" +
                 "  \"confidenceRating\": 75.24,\n" +
-                "  \"summary\": \"A brief description\",\n" +
+                "  \"summary\": \"A String\",\n" +
                 "}";
 
         // Include lexicon emotion counts, associated words, and the content in the prompt
@@ -151,7 +160,7 @@ public class OpenAIService {
                 + "The following words are associated with emotions: " + associatedWordsString + ". "
                 + "Analyze and respond with a JSON object containing: primaryEmotion with its percentage, secondaryEmotions with their percentages, "
                 + "confidenceRating (out of 100.00), derived by predicting how likely the detected emotions are correct based on word usage patterns, emotion co-occurrence, and typical sentiment analysis results from similar texts,"
-                + "a summary including a list of the associated words,"
+                + "a summary providing a concise analysis of the emotional meaning of the text with a list of the associated words in a single String,"
                 + " Adhere strictly to this format: \"" + format +"\""
                 + "Your analysis should be the dominant result but keep to the format";
     }
