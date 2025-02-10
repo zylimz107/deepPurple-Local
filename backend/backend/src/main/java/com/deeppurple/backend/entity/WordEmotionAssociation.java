@@ -1,5 +1,6 @@
 package com.deeppurple.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -21,5 +22,6 @@ public class WordEmotionAssociation {
 
     @ManyToOne
     @JoinColumn(name = "emotion_category_id")
+    @JsonBackReference
     private EmotionCategory emotionCategory;  // The emotion category this word belongs to
 }

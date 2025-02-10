@@ -24,28 +24,26 @@ public class EmotionCategoryService {
         // Find the model
         Model model = modelRepository.findById(modelId)
                 .orElseThrow(() -> new RuntimeException("Model not found"));
+
         if (model.isPredefined()) {
             throw new RuntimeException("Cannot assign to predefined models");
         }
+
         // Create a new emotion category
         EmotionCategory category = new EmotionCategory();
         category.setEmotion(name);
         category.setModel(model); // Associate with the model
 
-        // Update the model's emotionCategories list
-        if (model.getEmotionCategories() == null) {
-            model.setEmotionCategories(new ArrayList<>());
-        }
+        // Ensure bidirectional consistency
         model.getEmotionCategories().add(category);
 
-        // Save the emotion category
-        emotionCategoryRepository.save(category);
-
-        // Save the updated model
-        modelRepository.save(model);
-
-        return category;
+        // Save only the model, Hibernate will handle cascading
+        return modelRepository.save(model).getEmotionCategories().stream()
+                .filter(c -> c.getEmotion().equals(name))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Failed to save emotion category"));
     }
+
 
     // Update an existing emotion category
     public EmotionCategory updateEmotionCategory(Long id, String name) {

@@ -10,6 +10,7 @@ import com.deeppurple.backend.repository.WordEmotionAssociationRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -82,6 +83,7 @@ public class DataSeeder {
             category.setEmotion(emotion);
             category.setPredefined(true);
             category.setModel(model);
+            category.setWordEmotionAssociations(new ArrayList<>());
             category = emotionCategoryRepository.save(category);
         }
         return category;
