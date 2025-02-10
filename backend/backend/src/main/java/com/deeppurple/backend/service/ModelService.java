@@ -37,12 +37,6 @@ public class ModelService {
 
 
     public void deleteModel(Long id) {
-        Model model = modelRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Model not found"));
-
-        if (model.isPredefined()) {
-            throw new RuntimeException("Cannot delete predefined models");
-        }
         modelRepository.deleteById(id);
     }
 }

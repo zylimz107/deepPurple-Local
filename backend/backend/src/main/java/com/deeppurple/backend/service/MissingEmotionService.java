@@ -88,8 +88,8 @@ public class MissingEmotionService {
 
         return "Analyze and identify the most appropriate emotion for each of the following abbreviations, words or emojis based on the given emotions: " + emotionList +
                 ".\nWords/Emojis: " + wordsList +
-                ".\nIgnore common stop words (e.g., \"and\", \"the\", \"me\", \"also\", \"my\", \"with\") and numbers." +
-                ".\nOnly return words, emojis, or abbreviations that have an emotional association. "+
+                ".\nRemove all common stop words and numbers." +
+                ".\nThen only return words, emojis, or abbreviations that have an emotional association. "+
                 "\nFormat your response as a JSON array: [{\"word\": \"word1\", \"emotion\": \"emotion1\"}, {\"word\": \"word2\", \"emotion\": \"emotion2\"}].";
     }
 

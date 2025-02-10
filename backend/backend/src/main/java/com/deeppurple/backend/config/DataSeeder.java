@@ -7,6 +7,7 @@ import com.deeppurple.backend.entity.WordEmotionAssociation;
 import com.deeppurple.backend.repository.EmotionCategoryRepository;
 import com.deeppurple.backend.repository.ModelRepository;
 import com.deeppurple.backend.repository.WordEmotionAssociationRepository;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -15,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 
-import javax.annotation.PostConstruct;
+
 import java.io.IOException;
 import java.util.Map;
 

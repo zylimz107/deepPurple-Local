@@ -77,6 +77,10 @@ public class MistralService {
             if (content.startsWith("```json")) {
                 content = content.replaceAll("```json|```", "").trim();
             }
+            // Remove backticks if present
+            if (content.startsWith("```") && content.endsWith("```")) {
+                content = content.substring(3, content.length() - 3);  // Strip off the backticks
+            }
 
             // Parse the cleaned JSON string into a Map
             Map<String, Object> parsedContent = objectMapper.readValue(content, Map.class);

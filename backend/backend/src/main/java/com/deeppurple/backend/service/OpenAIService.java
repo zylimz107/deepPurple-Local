@@ -160,8 +160,8 @@ public class OpenAIService {
                 + "The following words are associated with emotions: " + associatedWordsString + ". "
                 + "Analyze and respond with a JSON object containing: primaryEmotion with its percentage, secondaryEmotions with their percentages, "
                 + "confidenceRating (out of 100.00), derived by predicting how likely the detected emotions are correct based on word usage patterns, emotion co-occurrence, and typical sentiment analysis results from similar texts,"
-                + "a summary providing a concise analysis of the emotional meaning of the text with a list of the associated words in a single String,"
-                + " Adhere strictly to this format: \"" + format +"\""
+                + "A summary providing a concise analysis of the emotional meaning of the text in a single String,"
+                + "Adhere strictly to this format: \"" + format +"\""
                 + "Your analysis should be the dominant result but keep to the format";
     }
 
