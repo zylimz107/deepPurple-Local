@@ -4,19 +4,27 @@ import com.deeppurple.backend.dto.CommunicationDTO;
 import com.deeppurple.backend.entity.Communication;
 import com.deeppurple.backend.entity.EmotionDetails;
 import com.deeppurple.backend.service.CommunicationService;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.kernel.pdf.PdfWriter;
 import jakarta.validation.Valid;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/communications")
@@ -117,5 +125,89 @@ public class CommunicationController {
 
         return service.saveCommunication(modelName, communication);
     }
+
+    @PostMapping("/batch-upload")
+    public Mono<ResponseEntity<byte[]>> batchUploadAndAnalyzeFiles(
+            @RequestParam("files") List<MultipartFile> files,
+            @RequestParam("modelName") String modelName) {
+
+        // Debugging: Log input parameters
+        System.out.println("Batch upload requested");
+        System.out.println("Files: " + files.size() + " files received.");
+        System.out.println("Model Name: " + modelName);
+
+        List<Mono<Communication>> uploadTasks = files.stream()
+                .map(file -> Mono.delay(Duration.ofSeconds(1)) // Introduce a delay of 1 second before each upload
+                        .flatMap(aLong -> uploadAndAnalyzeFile(file, modelName))) // Chain the delay with the upload call
+                .collect(Collectors.toList());
+
+        // Debugging: Log the number of upload tasks being processed
+        System.out.println("Number of tasks to upload and analyze: " + uploadTasks.size());
+
+        return Flux.fromIterable(uploadTasks)
+                .concatMap(uploadTask ->
+                        uploadTask
+                                .delayElement(Duration.ofMillis(500)) // Delay of 500ms between each task
+                                .doOnSubscribe(subscription -> System.out.println("Starting upload for file"))
+                )
+                .collectList()
+                .flatMap(communications -> {
+                    try {
+                        // Debugging: Log the number of communications received after analysis
+                        System.out.println("Number of communications after processing: " + communications.size());
+
+                        byte[] pdfBytes = generatePdfReport(communications);
+
+                        // Debugging: Log the PDF generation
+                        System.out.println("PDF report generated, size: " + pdfBytes.length + " bytes.");
+
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.setContentType(MediaType.APPLICATION_PDF);
+                        headers.setContentDisposition(ContentDisposition.attachment().filename("Batch_Report.pdf").build());
+
+                        return Mono.just(new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK));
+                    } catch (Exception e) {
+                        // Debugging: Log error during PDF generation
+                        System.err.println("Error generating PDF report: " + e.getMessage());
+                        return Mono.error(new RuntimeException("Failed to generate PDF report", e));
+                    }
+                });
+    }
+
+    private byte[] generatePdfReport(List<Communication> communications) throws Exception {
+        // Debugging: Log the start of PDF generation
+        System.out.println("Generating PDF report for " + communications.size() + " communications...");
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PdfWriter writer = new PdfWriter(outputStream);
+        PdfDocument pdf = new PdfDocument(writer);
+        Document document = new Document(pdf);
+
+        for (Communication comm : communications) {
+            // Debugging: Log details for each communication
+            System.out.println("Processing communication for model: " + comm.getModelName());
+            System.out.println("Primary Emotion: " + comm.getPrimaryEmotion().getEmotion() + " (" + comm.getPrimaryEmotion().getPercentage() + "%)");
+            System.out.println("Summary: " + comm.getSummary());
+
+            document.add(new Paragraph("Model: " + comm.getModelName()));
+            document.add(new Paragraph("Primary Emotion: " + comm.getPrimaryEmotion().getEmotion() + " (" + comm.getPrimaryEmotion().getPercentage() + "%)"));
+            document.add(new Paragraph("Secondary Emotions: " + comm.getSecondaryEmotions().stream()
+                    .map(e -> e.getEmotion() + " (" + e.getPercentage() + "%)")
+                    .collect(Collectors.joining(", "))));
+            document.add(new Paragraph("Summary: " + comm.getSummary()));
+            document.add(new Paragraph("Confidence Rating: " + comm.getConfidenceRating()));
+            document.add(new Paragraph("Model Version: " + comm.getModelVersion()));
+            document.add(new Paragraph("-----------------------------------"));
+        }
+
+        document.close();
+
+        // Debugging: Log completion of PDF generation
+        System.out.println("PDF report generation completed.");
+
+        return outputStream.toByteArray();
+    }
+
+
 
 }

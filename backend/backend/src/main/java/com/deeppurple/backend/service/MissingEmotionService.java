@@ -149,11 +149,20 @@ public class MissingEmotionService {
                             .filter(ec -> ec.getEmotion().equalsIgnoreCase(emotion))
                             .findFirst()
                             .orElse(null);
+
                     if (category != null) {
-                        WordEmotionAssociation association = new WordEmotionAssociation();
-                        association.setWord(word);
-                        association.setEmotionCategory(category);
-                        return association;
+
+                        // Check if the association already exists
+                        Optional<WordEmotionAssociation> existingEntry = wordEmotionAssociationRepository
+                                .findByWordAndEmotionCategory(word, category);
+
+                        if (existingEntry.isEmpty()) {
+                            // Create a new association only if it doesn't exist
+                            WordEmotionAssociation association = new WordEmotionAssociation();
+                            association.setWord(word);
+                            association.setEmotionCategory(category);
+                            return association;
+                        }
                     }
                     return null;
                 })
@@ -167,6 +176,7 @@ public class MissingEmotionService {
         return Mono.fromRunnable(() -> wordEmotionAssociationRepository.saveAll(associationsToSave))
                 .then();
     }
+
 }
 
 
