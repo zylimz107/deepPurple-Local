@@ -1,5 +1,6 @@
 package com.deeppurple.backend.controller;
 
+import com.deeppurple.backend.dto.WordAssociationDTO;
 import com.deeppurple.backend.entity.EmotionCategory;
 import com.deeppurple.backend.entity.WordEmotionAssociation;
 import com.deeppurple.backend.repository.WordEmotionAssociationRepository;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/emotion")
@@ -40,6 +42,7 @@ public class EmotionController {
 
     @DeleteMapping("/category/{id}")
     public void deleteEmotionCategory(@PathVariable Long id) {
+        System.out.println("Received DELETE request for category ID: " + id);
         emotionCategoryService.deleteEmotionCategory(id);
     }
 
@@ -57,8 +60,11 @@ public class EmotionController {
     }
 
     @GetMapping("/word-associations/{modelId}")
-    public List<WordEmotionAssociation> getAssociationsByModel(@PathVariable Long modelId) {
-        return wordEmotionAssociationRepository.findByEmotionCategory_ModelId(modelId);
+    public List<WordAssociationDTO> getAssociationsByModel(@PathVariable Long modelId) {
+        return wordEmotionAssociationRepository.findByEmotionCategory_ModelId(modelId)
+                .stream()
+                .map(WordAssociationDTO::new)
+                .collect(Collectors.toList());
     }
 
 

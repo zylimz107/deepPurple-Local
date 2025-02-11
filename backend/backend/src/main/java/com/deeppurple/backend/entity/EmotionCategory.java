@@ -23,7 +23,7 @@ public class EmotionCategory {
 
     private boolean predefined = false; // Indicates if this is a predefined model
 
-    @OneToMany(mappedBy = "emotionCategory", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "emotionCategory", cascade = {CascadeType.ALL, CascadeType.REMOVE}, orphanRemoval = true)
     @JsonManagedReference
     private List<WordEmotionAssociation> wordEmotionAssociations = new ArrayList<>();
 
